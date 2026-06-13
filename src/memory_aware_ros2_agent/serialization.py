@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import fields, is_dataclass
 from enum import Enum
-from typing import Any
+from typing import Any, cast
 
 from memory_aware_ros2_agent.models import (
     EventMetadata,
@@ -25,7 +25,7 @@ def to_serializable(value: Any) -> JsonValue:
     """Convert model values into JSON-compatible Python values."""
 
     if isinstance(value, Enum):
-        return value.value
+        return cast(JsonValue, value.value)
 
     if is_dataclass(value) and not isinstance(value, type):
         return {
@@ -51,7 +51,8 @@ def model_to_dict(model: object) -> dict[str, JsonValue]:
 
     serialized = to_serializable(model)
     if not isinstance(serialized, dict):
-        msg = f"Expected model serialization to produce a dict, got {type(serialized).__name__}"
+        actual_type = type(serialized).__name__
+        msg = f"Expected model serialization to produce a dict, got {actual_type}"
         raise TypeError(msg)
     return serialized
 
@@ -140,5 +141,7 @@ def source_node_from_dict(data: dict[str, Any]) -> SourceNode:
         node_id=str(data["node_id"]),
         node_name=str(data["node_name"]),
         namespace=str(data.get("namespace", "/")),
-        capabilities=tuple(str(capability) for capability in data.get("capabilities", ())),
+        capabilities=tuple(
+            str(capability) for capability in data.get("capabilities", ())
+        ),
     )

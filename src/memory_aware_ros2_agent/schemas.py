@@ -65,7 +65,14 @@ _MODEL_SCHEMAS: dict[type[Any], JsonSchema] = {
             "limit": {"type": "integer"},
             "filters": {"type": "object"},
         },
-        required=["query_id", "query_text", "requested_at", "trace_id", "limit", "filters"],
+        required=[
+            "query_id",
+            "query_text",
+            "requested_at",
+            "trace_id",
+            "limit",
+            "filters",
+        ],
     ),
     RecallResult: _object_schema(
         properties={
@@ -120,4 +127,7 @@ def schema_for_model(model_type: type[Any]) -> JsonSchema:
 def schemas_for_all_models() -> dict[str, JsonSchema]:
     """Return JSON schemas keyed by model class name."""
 
-    return {model_type.__name__: schema_for_model(model_type) for model_type in _MODEL_SCHEMAS}
+    return {
+        model_type.__name__: schema_for_model(model_type)
+        for model_type in _MODEL_SCHEMAS
+    }
