@@ -36,3 +36,6 @@ jobs:
 
       - name: Run MyPy
         run: mypy src
+
+      - name: Validate package build
+        run: python -m build
