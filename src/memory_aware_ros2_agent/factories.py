@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from memory_aware_ros2_agent.id_utils import new_event_id, new_trace_id
-from memory_aware_ros2_agent.models import EventType, MemoryEvent, TaskTrace
+from memory_aware_ros2_agent.id_utils import new_event_id, new_query_id, new_trace_id
+from memory_aware_ros2_agent.models import EventType, MemoryEvent, RecallQuery, TaskTrace
 from memory_aware_ros2_agent.time_utils import utc_now_iso
 
 
@@ -46,4 +46,25 @@ def create_task_trace(
         started_at=started_at or utc_now_iso(),
         events=events,
         ended_at=ended_at,
+    )
+
+
+def create_recall_query(
+    *,
+    query_text: str,
+    query_id: str | None = None,
+    requested_at: str | None = None,
+    trace_id: str | None = None,
+    limit: int = 5,
+    filters: dict[str, Any] | None = None,
+) -> RecallQuery:
+    """Create a recall query with generated defaults."""
+
+    return RecallQuery(
+        query_id=query_id or new_query_id(),
+        query_text=query_text,
+        requested_at=requested_at or utc_now_iso(),
+        trace_id=trace_id,
+        limit=limit,
+        filters=filters or {},
     )
