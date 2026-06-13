@@ -5,6 +5,7 @@ Start here for project documentation.
 ## Core Docs
 
 - [Architecture](architecture.md)
+- [Core Memory Models](models.md)
 - [Release Checklist](release_checklist.md)
 - [Repository Topics](repository_topics.md)
 
