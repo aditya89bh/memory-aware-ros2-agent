@@ -39,3 +39,13 @@ class RecallQuery:
     trace_id: str | None = None
     limit: int = 5
     filters: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True, slots=True)
+class RecallResult:
+    """Events returned for a recall query."""
+
+    query_id: str
+    events: tuple[MemoryEvent, ...] = ()
+    scores: tuple[float, ...] = ()
+    generated_at: str | None = None
