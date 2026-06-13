@@ -29,6 +29,16 @@ class EventMetadata:
 
 
 @dataclass(frozen=True, slots=True)
+class SourceNode:
+    """Robot or agent node that produced memory data."""
+
+    node_id: str
+    node_name: str
+    namespace: str = "/"
+    capabilities: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True, slots=True)
 class TaskTrace:
     """Ordered memory events from one robot task workflow."""
 
