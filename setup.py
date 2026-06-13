@@ -22,6 +22,7 @@ setup(
     entry_points={
         "console_scripts": [
             "memory-recorder = memory_aware_ros2_agent.memory_recorder_node:main",
+            "recall-service = memory_aware_ros2_agent.recall_service_node:main",
         ],
     },
 )

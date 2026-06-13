@@ -30,6 +30,9 @@ except ImportError:  # pragma: no cover - exercised when ROS2 is not installed.
         def get_logger(self) -> Any:
             return _FallbackLogger()
 
+        def destroy_node(self) -> None:
+            return None
+
     class String:  # type: ignore[no-redef]
         """Fallback std_msgs/String message."""
 
