@@ -40,8 +40,7 @@ def main() -> None:
     try:
         rclpy.spin(node)
     finally:
-        destroy_node = getattr(node, "destroy_node")
-        destroy_node()
+        node.destroy_node()
         rclpy.shutdown()
 
 

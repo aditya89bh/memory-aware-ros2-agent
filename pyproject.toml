@@ -32,6 +32,11 @@ dev = [
   "ruff",
 ]
 
+[project.scripts]
+memory-recorder = "memory_aware_ros2_agent.memory_recorder_node:main"
+recall-service = "memory_aware_ros2_agent.recall_service_node:main"
+trace-publisher = "memory_aware_ros2_agent.trace_publisher_node:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
