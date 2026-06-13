@@ -3,7 +3,19 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Any
+
+
+class EventType(str, Enum):
+    """Canonical event categories recorded in task memory."""
+
+    TASK_STARTED = "task.started"
+    TASK_OBSERVED = "task.observed"
+    TASK_DECIDED = "task.decided"
+    TASK_ACTED = "task.acted"
+    TASK_FAILED = "task.failed"
+    TASK_SUCCEEDED = "task.succeeded"
 
 
 @dataclass(frozen=True, slots=True)
@@ -12,7 +24,7 @@ class MemoryEvent:
 
     event_id: str
     trace_id: str
-    event_type: str
+    event_type: EventType
     timestamp: str
     summary: str
     payload: dict[str, Any] = field(default_factory=dict)

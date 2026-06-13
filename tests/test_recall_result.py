@@ -1,4 +1,4 @@
-from memory_aware_ros2_agent.models import MemoryEvent, RecallResult
+from memory_aware_ros2_agent.models import EventType, MemoryEvent, RecallResult
 
 
 def test_recall_result_defaults_to_empty_events() -> None:
@@ -14,7 +14,7 @@ def test_recall_result_stores_events_and_scores() -> None:
     event = MemoryEvent(
         event_id="event-001",
         trace_id="trace-001",
-        event_type="task.failed",
+        event_type=EventType.TASK_FAILED,
         timestamp="2026-06-13T05:03:00Z",
         summary="Grasp attempt failed.",
     )

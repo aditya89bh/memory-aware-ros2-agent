@@ -1,4 +1,4 @@
-from memory_aware_ros2_agent.models import MemoryEvent, TaskTrace
+from memory_aware_ros2_agent.models import EventType, MemoryEvent, TaskTrace
 
 
 def test_task_trace_stores_workflow_fields() -> None:
@@ -19,7 +19,7 @@ def test_task_trace_groups_memory_events() -> None:
     event = MemoryEvent(
         event_id="event-001",
         trace_id="trace-001",
-        event_type="task.started",
+        event_type=EventType.TASK_STARTED,
         timestamp="2026-06-13T05:00:00Z",
         summary="Robot started task.",
     )
