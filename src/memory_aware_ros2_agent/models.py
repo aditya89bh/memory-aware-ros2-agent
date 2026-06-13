@@ -7,6 +7,10 @@ from enum import Enum
 from typing import Any
 
 
+def _hashable_mapping(mapping: dict[str, Any]) -> tuple[tuple[str, str], ...]:
+    return tuple(sorted((str(key), repr(value)) for key, value in mapping.items()))
+
+
 class EventType(str, Enum):
     """Canonical event categories recorded in task memory."""
 
@@ -28,6 +32,18 @@ class MemoryEvent:
     timestamp: str
     summary: str
     payload: dict[str, Any] = field(default_factory=dict)
+
+    def __hash__(self) -> int:
+        return hash(
+            (
+                self.event_id,
+                self.trace_id,
+                self.event_type,
+                self.timestamp,
+                self.summary,
+                _hashable_mapping(self.payload),
+            )
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -71,6 +87,17 @@ class TaskOutcome:
     reason: str | None = None
     metrics: dict[str, Any] = field(default_factory=dict)
 
+    def __hash__(self) -> int:
+        return hash(
+            (
+                self.trace_id,
+                self.status,
+                self.completed_at,
+                self.reason,
+                _hashable_mapping(self.metrics),
+            )
+        )
+
 
 @dataclass(frozen=True, slots=True)
 class RecallQuery:
@@ -82,6 +109,18 @@ class RecallQuery:
     trace_id: str | None = None
     limit: int = 5
     filters: dict[str, Any] = field(default_factory=dict)
+
+    def __hash__(self) -> int:
+        return hash(
+            (
+                self.query_id,
+                self.query_text,
+                self.requested_at,
+                self.trace_id,
+                self.limit,
+                _hashable_mapping(self.filters),
+            )
+        )
 
 
 @dataclass(frozen=True, slots=True)
