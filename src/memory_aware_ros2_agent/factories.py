@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from memory_aware_ros2_agent.id_utils import new_event_id
-from memory_aware_ros2_agent.models import EventType, MemoryEvent
+from memory_aware_ros2_agent.id_utils import new_event_id, new_trace_id
+from memory_aware_ros2_agent.models import EventType, MemoryEvent, TaskTrace
 from memory_aware_ros2_agent.time_utils import utc_now_iso
 
 
@@ -27,4 +27,23 @@ def create_memory_event(
         timestamp=timestamp or utc_now_iso(),
         summary=summary,
         payload=payload or {},
+    )
+
+
+def create_task_trace(
+    *,
+    task_name: str,
+    trace_id: str | None = None,
+    started_at: str | None = None,
+    events: tuple[MemoryEvent, ...] = (),
+    ended_at: str | None = None,
+) -> TaskTrace:
+    """Create a task trace with generated defaults."""
+
+    return TaskTrace(
+        trace_id=trace_id or new_trace_id(),
+        task_name=task_name,
+        started_at=started_at or utc_now_iso(),
+        events=events,
+        ended_at=ended_at,
     )
