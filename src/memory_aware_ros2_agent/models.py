@@ -19,6 +19,16 @@ class MemoryEvent:
 
 
 @dataclass(frozen=True, slots=True)
+class EventMetadata:
+    """Context attached to a recorded memory event."""
+
+    source_node_id: str
+    created_at: str
+    tags: tuple[str, ...] = ()
+    priority: int = 0
+
+
+@dataclass(frozen=True, slots=True)
 class TaskTrace:
     """Ordered memory events from one robot task workflow."""
 
