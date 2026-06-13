@@ -1,0 +1,11 @@
+{
+  "event_id": "event-001",
+  "trace_id": "trace-001",
+  "event_type": "task.started",
+  "timestamp": "2026-06-13T05:00:00Z",
+  "summary": "Robot started pick-and-place workflow.",
+  "payload": {
+    "task_name": "pick-and-place",
+    "operator_id": "operator-1"
+  }
+}
