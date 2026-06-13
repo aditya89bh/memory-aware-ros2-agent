@@ -5,7 +5,13 @@ from __future__ import annotations
 from typing import Any
 
 from memory_aware_ros2_agent.id_utils import new_event_id, new_query_id, new_trace_id
-from memory_aware_ros2_agent.models import EventType, MemoryEvent, RecallQuery, TaskTrace
+from memory_aware_ros2_agent.models import (
+    EventType,
+    MemoryEvent,
+    RecallQuery,
+    RecallResult,
+    TaskTrace,
+)
 from memory_aware_ros2_agent.time_utils import utc_now_iso
 
 
@@ -67,4 +73,21 @@ def create_recall_query(
         trace_id=trace_id,
         limit=limit,
         filters=filters or {},
+    )
+
+
+def create_recall_result(
+    *,
+    query_id: str,
+    events: tuple[MemoryEvent, ...] = (),
+    scores: tuple[float, ...] = (),
+    generated_at: str | None = None,
+) -> RecallResult:
+    """Create a recall result with generated defaults."""
+
+    return RecallResult(
+        query_id=query_id,
+        events=events,
+        scores=scores,
+        generated_at=generated_at or utc_now_iso(),
     )
