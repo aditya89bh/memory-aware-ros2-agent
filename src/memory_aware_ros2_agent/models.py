@@ -40,6 +40,17 @@ class TaskTrace:
 
 
 @dataclass(frozen=True, slots=True)
+class TaskOutcome:
+    """Final outcome summary for a robot task workflow."""
+
+    trace_id: str
+    status: str
+    completed_at: str
+    reason: str | None = None
+    metrics: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True, slots=True)
 class RecallQuery:
     """A request for relevant past memory events."""
 
