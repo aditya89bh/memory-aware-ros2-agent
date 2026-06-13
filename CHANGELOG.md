@@ -7,6 +7,10 @@ and this project adheres to semantic versioning.
 
 ## [Unreleased]
 
+No unreleased changes yet.
+
+## [0.1.0] - 2026-06-13
+
 ### Added
 
 - Initial package foundation for memory-aware ROS2 agent workflows.
