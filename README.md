@@ -1,6 +1,6 @@
 # Memory-Aware ROS2 Agent
 
-ROS2 package foundation for memory events, task traces, and recall in robot workflows.
+Production-grade ROS2 package foundation for memory events, task traces, and recall in robot workflows.
 
 This project will provide a clean Python package that helps robot nodes record task events,
 persist task traces, and recall relevant past events for future decisions. Phase 1 keeps the
@@ -35,7 +35,23 @@ Recall Interface
 Robot Workflow
 ```
 
-## Setup
+## Features Roadmap
+
+- Memory event models for robot task workflows
+- Task trace persistence for ordered execution history
+- Recall interfaces for retrieving relevant prior events
+- ROS2 node integration for publishing and consuming memory events
+- Storage backends suitable for local development and robot deployment
+
+## Installation
+
+```sh
+python -m pip install memory-aware-ros2-agent
+```
+
+The package is not published yet. During early development, install from a local checkout.
+
+## Development Setup
 
 ```sh
 python -m venv .venv
@@ -44,12 +60,12 @@ python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"
 ```
 
-## Tests
+## Testing
 
 ```sh
 pytest
 ruff check .
-mypy
+mypy src
 ```
 
 ## Status
