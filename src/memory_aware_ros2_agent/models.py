@@ -27,3 +27,15 @@ class TaskTrace:
     started_at: str
     events: tuple[MemoryEvent, ...] = ()
     ended_at: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class RecallQuery:
+    """A request for relevant past memory events."""
+
+    query_id: str
+    query_text: str
+    requested_at: str
+    trace_id: str | None = None
+    limit: int = 5
+    filters: dict[str, Any] = field(default_factory=dict)
