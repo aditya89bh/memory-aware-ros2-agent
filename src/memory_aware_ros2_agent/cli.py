@@ -60,3 +60,33 @@ def export_main(argv: list[str] | None = None) -> None:
     args = parser.parse_args(argv)
     count = export_memory_files(args.paths, args.output)
     print(f"exported {count} memory records to {args.output}")
+
+
+def import_memory_bundle(bundle_path: Path, output_dir: Path) -> list[Path]:
+    """Import a JSON bundle into one file per memory record."""
+
+    records = _load_json(bundle_path)
+    if not isinstance(records, list):
+        raise ValueError("memory bundle must contain a JSON array")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    written: list[Path] = []
+    for index, record in enumerate(records):
+        if not isinstance(record, dict):
+            raise ValueError("memory bundle records must be JSON objects")
+        record_id = str(record.get("event_id") or record.get("trace_id") or index)
+        path = output_dir / f"{record_id}.json"
+        path.write_text(
+            json.dumps(record, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        written.append(path)
+    return written
+
+
+def import_main(argv: list[str] | None = None) -> None:
+    parser = argparse.ArgumentParser(description="Import a memory JSON bundle.")
+    parser.add_argument("bundle", type=Path)
+    parser.add_argument("--output-dir", required=True, type=Path)
+    args = parser.parse_args(argv)
+    paths = import_memory_bundle(args.bundle, args.output_dir)
+    print(f"imported {len(paths)} memory records into {args.output_dir}")
