@@ -1,0 +1,40 @@
+name: Reproducible Build
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+
+jobs:
+  compare-artifacts:
+    name: Compare Python build artifacts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build
+
+      - name: Build first artifact set
+        run: |
+          rm -rf dist
+          SOURCE_DATE_EPOCH=1700000000 python -m build
+          sha256sum dist/* | sort > first.sha256
+
+      - name: Build second artifact set
+        run: |
+          rm -rf dist
+          SOURCE_DATE_EPOCH=1700000000 python -m build
+          sha256sum dist/* | sort > second.sha256
+
+      - name: Compare artifact hashes
+        run: diff -u first.sha256 second.sha256
