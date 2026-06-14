@@ -47,6 +47,16 @@ class TraceAnomaly:
     description: str
 
 
+@dataclass(frozen=True)
+class RetryChain:
+    """Retry attempts that belong to the same logical operation."""
+
+    retry_group: str
+    event_ids: tuple[str, ...]
+    attempts: int
+    final_event_type: EventType
+
+
 class TraceAnalyzer(Protocol):
     """Contract for turning raw task traces into actionable insight."""
 
@@ -348,6 +358,59 @@ class TraceAnomalyAnalyzer:
                         "description": anomaly.description,
                     }
                     for anomaly in anomalies
+                )
+            },
+        )
+
+
+def analyze_retry_chains(trace: TaskTrace) -> tuple[RetryChain, ...]:
+    """Group retry events by their ``retry_group`` payload value."""
+
+    grouped_events: dict[str, list[MemoryEvent]] = {}
+    for step in extract_event_sequence(trace):
+        event = trace.events[step.index]
+        retry_group = event.payload.get("retry_group")
+        if retry_group is None:
+            continue
+        grouped_events.setdefault(str(retry_group), []).append(event)
+
+    chains: list[RetryChain] = []
+    for retry_group, events in sorted(grouped_events.items()):
+        if len(events) < 2:
+            continue
+        chains.append(
+            RetryChain(
+                retry_group=retry_group,
+                event_ids=tuple(event.event_id for event in events),
+                attempts=len(events),
+                final_event_type=events[-1].event_type,
+            )
+        )
+    return tuple(chains)
+
+
+class RetryChainAnalyzer:
+    """Analyze retry chains in a task trace."""
+
+    def analyze(self, trace: TaskTrace) -> TraceInsight:
+        chains = analyze_retry_chains(trace)
+        return TraceInsight(
+            trace_id=trace.trace_id,
+            insight_type="retry_chains",
+            summary=(
+                "No retry chains were detected."
+                if not chains
+                else f"Detected {len(chains)} retry chains."
+            ),
+            details={
+                "retry_chains": tuple(
+                    {
+                        "retry_group": chain.retry_group,
+                        "event_ids": chain.event_ids,
+                        "attempts": chain.attempts,
+                        "final_event_type": chain.final_event_type.value,
+                    }
+                    for chain in chains
                 )
             },
         )
