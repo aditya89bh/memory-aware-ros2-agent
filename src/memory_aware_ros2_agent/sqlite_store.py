@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import sqlite3
 from pathlib import Path
-from typing import Any
 
 from memory_aware_ros2_agent.models import MemoryEvent, RecallResult, TaskTrace
 from memory_aware_ros2_agent.serialization import (
@@ -13,6 +12,12 @@ from memory_aware_ros2_agent.serialization import (
     model_to_dict,
     recall_result_from_dict,
     task_trace_from_dict,
+)
+from memory_aware_ros2_agent.sqlite_schema import (
+    initialize_sqlite_schema,
+)
+from memory_aware_ros2_agent.sqlite_schema import (
+    sqlite_tables as _sqlite_tables,
 )
 
 
@@ -153,41 +158,10 @@ class SQLiteStore:
         self.connection.close()
 
     def _initialize_schema(self) -> None:
-        self.connection.executescript(
-            """
-            CREATE TABLE IF NOT EXISTS memory_events (
-                event_id TEXT PRIMARY KEY,
-                trace_id TEXT NOT NULL,
-                event_type TEXT NOT NULL,
-                timestamp TEXT NOT NULL,
-                payload_json TEXT NOT NULL
-            );
-
-            CREATE TABLE IF NOT EXISTS task_traces (
-                trace_id TEXT PRIMARY KEY,
-                task_name TEXT NOT NULL,
-                started_at TEXT NOT NULL,
-                payload_json TEXT NOT NULL
-            );
-
-            CREATE TABLE IF NOT EXISTS recall_results (
-                query_id TEXT PRIMARY KEY,
-                generated_at TEXT,
-                payload_json TEXT NOT NULL
-            );
-            """
-        )
-        self.connection.commit()
+        initialize_sqlite_schema(self.connection)
 
 
 def sqlite_tables(store: SQLiteStore) -> tuple[str, ...]:
     """Return user-created SQLite table names for tests and diagnostics."""
 
-    rows: list[tuple[Any, ...]] = store.connection.execute(
-        """
-        SELECT name FROM sqlite_master
-        WHERE type = 'table'
-        ORDER BY name
-        """
-    ).fetchall()
-    return tuple(str(row[0]) for row in rows)
+    return _sqlite_tables(store.connection)

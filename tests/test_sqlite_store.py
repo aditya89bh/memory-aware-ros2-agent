@@ -23,7 +23,12 @@ def _event(event_id: str, trace_id: str = "trace-001") -> MemoryEvent:
 def test_sqlite_store_initializes_schema(tmp_path: Path) -> None:
     store = SQLiteStore(tmp_path / "memory.db")
 
-    assert sqlite_tables(store) == ("memory_events", "recall_results", "task_traces")
+    assert sqlite_tables(store) == (
+        "memory_events",
+        "recall_results",
+        "schema_metadata",
+        "task_traces",
+    )
 
 
 def test_sqlite_store_round_trips_events_and_traces(tmp_path: Path) -> None:
