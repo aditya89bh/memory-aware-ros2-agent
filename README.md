@@ -68,7 +68,13 @@ ruff check .
 mypy src
 ```
 
+## ROS2 Usage
+
+See [ROS2 Usage](docs/ros2_usage.md) for nodes, launch files, parameters, QoS,
+lifecycle diagnostics, and validation commands.
+
 ## Status
 
-Initial repository foundation only. ROS2 runtime nodes, messages, launch files, and storage
-implementations will be added in later phases.
+Phase 3 ROS2 integration is underway. Runtime nodes, launch examples, lifecycle
+support, QoS configuration, diagnostics, and validation coverage are available.
+Persistence and recall algorithms remain future phases.
