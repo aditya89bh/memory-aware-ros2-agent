@@ -6,6 +6,10 @@ import json
 from typing import Any
 
 from memory_aware_ros2_agent.models import TaskTrace
+from memory_aware_ros2_agent.ros_callback_groups import (
+    CallbackGroupConfig,
+    make_callback_group,
+)
 from memory_aware_ros2_agent.ros_compat import Node, String
 from memory_aware_ros2_agent.ros_config import RosNodeConfig, declare_ros_node_config
 from memory_aware_ros2_agent.ros_qos import QoSConfig, make_qos_profile
@@ -19,16 +23,19 @@ class TracePublisher(Node):
         self,
         config: RosNodeConfig | None = None,
         qos_config: QoSConfig | None = None,
+        callback_group_config: CallbackGroupConfig | None = None,
     ) -> None:
         super().__init__("trace_publisher")
         self.config = declare_ros_node_config(self, config)
         self.qos_profile = make_qos_profile(
             qos_config or QoSConfig(depth=self.config.queue_depth)
         )
+        self.callback_group = make_callback_group(callback_group_config)
         self.publisher = self.create_publisher(
             String,
             self.config.memory_traces_topic,
             self.qos_profile,
+            callback_group=self.callback_group,
         )
 
     def serialize_trace(self, trace: TaskTrace) -> String:

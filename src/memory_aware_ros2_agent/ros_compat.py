@@ -56,6 +56,12 @@ if TYPE_CHECKING:
         KEEP_LAST: Any
         KEEP_ALL: Any
 
+    class MutuallyExclusiveCallbackGroup:
+        """Typed fallback mutually exclusive callback group."""
+
+    class ReentrantCallbackGroup:
+        """Typed fallback reentrant callback group."""
+
     class TransitionCallbackReturn:
         """Typed fallback transition return enum."""
 
@@ -84,6 +90,10 @@ if TYPE_CHECKING:
 else:
     try:
         import rclpy
+        from rclpy.callback_groups import (
+            MutuallyExclusiveCallbackGroup,
+            ReentrantCallbackGroup,
+        )
         from rclpy.node import Node
         from rclpy.qos import (
             DurabilityPolicy,
@@ -162,6 +172,12 @@ else:
                 self.durability = durability
                 self.history = history
 
+        class MutuallyExclusiveCallbackGroup:
+            """Fallback mutually exclusive callback group."""
+
+        class ReentrantCallbackGroup:
+            """Fallback reentrant callback group."""
+
         class TransitionCallbackReturn:
             SUCCESS = "success"
             FAILURE = "failure"
@@ -188,9 +204,11 @@ __all__ = [
     "DurabilityPolicy",
     "HistoryPolicy",
     "LifecycleNode",
+    "MutuallyExclusiveCallbackGroup",
     "Node",
     "QoSProfile",
     "ReliabilityPolicy",
+    "ReentrantCallbackGroup",
     "String",
     "TransitionCallbackReturn",
     "Trigger",
