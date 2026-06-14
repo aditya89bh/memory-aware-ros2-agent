@@ -1,5 +1,7 @@
 """ROS2 setup entry point for ament_python."""
 
+from glob import glob
+
 from setuptools import find_packages, setup
 
 PACKAGE_NAME = "memory_aware_ros2_agent"
@@ -12,6 +14,7 @@ setup(
     data_files=[
         ("share/ament_index/resource_index/packages", [f"resource/{PACKAGE_NAME}"]),
         (f"share/{PACKAGE_NAME}", ["package.xml"]),
+        (f"share/{PACKAGE_NAME}/launch", glob("launch/*.launch.py")),
     ],
     install_requires=["setuptools"],
     zip_safe=True,
