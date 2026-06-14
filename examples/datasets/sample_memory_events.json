@@ -1,0 +1,34 @@
+[
+  {
+    "event_id": "sample-pick-observed",
+    "event_type": "task.observed",
+    "payload": {
+      "confidence": 0.97,
+      "part_id": "gear-42"
+    },
+    "summary": "Part pose detected in source bin.",
+    "timestamp": "2026-06-14T10:00:02Z",
+    "trace_id": "sample-pick-and-place"
+  },
+  {
+    "event_id": "sample-cnc-cycle-complete",
+    "event_type": "task.observed",
+    "payload": {
+      "machine": "cnc-01",
+      "status": "complete"
+    },
+    "summary": "CNC machining cycle completed normally.",
+    "timestamp": "2026-06-14T11:02:30Z",
+    "trace_id": "sample-cnc-tending"
+  },
+  {
+    "event_id": "sample-navigation-reroute",
+    "event_type": "task.decided",
+    "payload": {
+      "reason": "temporary_obstacle"
+    },
+    "summary": "Navigation rerouted around blocked aisle.",
+    "timestamp": "2026-06-14T12:00:09Z",
+    "trace_id": "sample-navigation"
+  }
+]
