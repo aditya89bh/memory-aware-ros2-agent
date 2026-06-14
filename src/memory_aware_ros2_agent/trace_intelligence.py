@@ -108,6 +108,16 @@ class TraceComparison:
     status_changed: bool
 
 
+@dataclass(frozen=True)
+class ReplayStep:
+    """Event replay step with delay from the previous replayed event."""
+
+    event_id: str
+    event_type: EventType
+    delay_since_previous_seconds: float
+    summary: str
+
+
 class TraceAnalyzer(Protocol):
     """Contract for turning raw task traces into actionable insight."""
 
@@ -674,6 +684,30 @@ def compare_traces(left: TaskTrace, right: TaskTrace) -> TraceComparison:
         event_count_delta=right_statistics.event_count - left_statistics.event_count,
         status_changed=left_statistics.status != right_statistics.status,
     )
+
+
+def build_replay_steps(trace: TaskTrace) -> tuple[ReplayStep, ...]:
+    """Build ordered replay steps with relative delays."""
+
+    sequence = extract_event_sequence(trace)
+    replay_steps: list[ReplayStep] = []
+    previous_timestamp: str | None = None
+    for step in sequence:
+        delay_seconds = 0.0
+        if previous_timestamp is not None:
+            delay_seconds = (
+                _parse_timestamp(step.timestamp) - _parse_timestamp(previous_timestamp)
+            ).total_seconds()
+        replay_steps.append(
+            ReplayStep(
+                event_id=step.event_id,
+                event_type=step.event_type,
+                delay_since_previous_seconds=delay_seconds,
+                summary=step.summary,
+            )
+        )
+        previous_timestamp = step.timestamp
+    return tuple(replay_steps)
 
 
 def _latest_event_timestamp(trace: TaskTrace) -> str | None:
