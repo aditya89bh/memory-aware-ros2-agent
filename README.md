@@ -88,7 +88,10 @@ filters, scoring, ranking, evaluation metrics, and examples.
 See [Phase 5 Summary](docs/phase5_summary.md) for the completed recall engine
 scope and deferred work.
 
+See [Trace Intelligence](docs/trace_intelligence.md) for Phase 6 analyzers,
+benchmarks, reports, visualizations, and examples.
+
 ## Status
 
 Phase 3 ROS2 integration, Phase 4 persistence, and Phase 5 recall engine
-support are complete.
+support are complete. Phase 6 trace intelligence is in progress.
