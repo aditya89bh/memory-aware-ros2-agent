@@ -64,7 +64,7 @@ target-version = "py310"
 src = ["src", "tests"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "B", "UP", "SIM"]
+select = ["E", "F", "I", "B", "UP", "SIM", "C4", "RET", "RUF"]
 ignore = []
 
 [tool.mypy]

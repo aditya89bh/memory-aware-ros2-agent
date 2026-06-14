@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
+from itertools import pairwise
 from typing import Any, Protocol
 
 from memory_aware_ros2_agent.models import EventType, MemoryEvent, TaskTrace
@@ -492,7 +493,7 @@ def analyze_state_transitions(trace: TaskTrace) -> tuple[StateTransition, ...]:
 
     sequence = extract_event_sequence(trace)
     counts: dict[tuple[EventType, EventType], int] = {}
-    for current_step, next_step in zip(sequence, sequence[1:], strict=False):
+    for current_step, next_step in pairwise(sequence):
         key = (current_step.event_type, next_step.event_type)
         counts[key] = counts.get(key, 0) + 1
     return tuple(
@@ -536,7 +537,7 @@ def identify_bottlenecks(
 
     sequence = extract_event_sequence(trace)
     bottlenecks: list[TraceBottleneck] = []
-    for current_step, next_step in zip(sequence, sequence[1:], strict=False):
+    for current_step, next_step in pairwise(sequence):
         gap_seconds = (
             _parse_timestamp(next_step.timestamp)
             - _parse_timestamp(current_step.timestamp)

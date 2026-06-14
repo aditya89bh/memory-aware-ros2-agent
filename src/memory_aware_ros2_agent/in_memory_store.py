@@ -78,5 +78,3 @@ class InMemoryStore:
 
     def close(self) -> None:
         """Release backend resources."""
-
-        return None

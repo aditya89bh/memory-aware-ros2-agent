@@ -119,8 +119,6 @@ class JsonFileStore:
     def close(self) -> None:
         """Release backend resources."""
 
-        return None
-
     def _read(self) -> dict[str, dict[str, Any]]:
         with self.path.open(encoding="utf-8") as file:
             data = json.load(file)

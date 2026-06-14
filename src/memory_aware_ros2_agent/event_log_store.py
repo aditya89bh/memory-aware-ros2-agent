@@ -92,8 +92,6 @@ class EventLogStore:
     def close(self) -> None:
         """Release backend resources."""
 
-        return None
-
     def _append(self, record: dict[str, Any]) -> None:
         with self.path.open("a", encoding="utf-8") as file:
             file.write(json.dumps(record, sort_keys=True))

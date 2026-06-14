@@ -16,7 +16,6 @@ PACKAGE_NAME = "memory-aware-ros2-agent"
 
 __all__ = [
     "PACKAGE_NAME",
-    "__version__",
     "EventMetadata",
     "EventType",
     "MemoryEvent",
@@ -25,4 +24,5 @@ __all__ = [
     "SourceNode",
     "TaskOutcome",
     "TaskTrace",
+    "__version__",
 ]
