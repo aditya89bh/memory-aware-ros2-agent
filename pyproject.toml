@@ -71,3 +71,6 @@ ignore = []
 python_version = "3.10"
 strict = true
 packages = ["memory_aware_ros2_agent"]
+pretty = true
+show_error_codes = true
+warn_unreachable = true
