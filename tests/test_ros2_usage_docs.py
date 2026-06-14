@@ -25,3 +25,10 @@ def test_ros2_usage_doc_lists_validation_commands() -> None:
 
     for command in ("pytest", "ruff check .", "mypy src", "colcon build"):
         assert command in usage_doc
+
+
+def test_phase3_summary_documents_deferred_work() -> None:
+    summary = Path("docs/phase3_summary.md").read_text(encoding="utf-8")
+
+    assert "Persistence backends are not implemented" in summary
+    assert "Recall algorithms are not implemented" in summary

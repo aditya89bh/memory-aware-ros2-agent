@@ -73,8 +73,10 @@ mypy src
 See [ROS2 Usage](docs/ros2_usage.md) for nodes, launch files, parameters, QoS,
 lifecycle diagnostics, and validation commands.
 
+See [Phase 3 Summary](docs/phase3_summary.md) for the completed ROS2
+integration scope and deferred work.
+
 ## Status
 
-Phase 3 ROS2 integration is underway. Runtime nodes, launch examples, lifecycle
-support, QoS configuration, diagnostics, and validation coverage are available.
-Persistence and recall algorithms remain future phases.
+Phase 3 ROS2 integration is complete. Persistence and recall algorithms remain
+future phases.
