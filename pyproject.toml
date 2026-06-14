@@ -28,6 +28,7 @@ dependencies = []
 dev = [
   "build",
   "mypy",
+  "pip-audit",
   "pytest",
   "pytest-cov",
   "ruff",
