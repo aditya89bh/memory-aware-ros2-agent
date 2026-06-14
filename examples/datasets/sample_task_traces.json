@@ -1,0 +1,55 @@
+[
+  {
+    "ended_at": "2026-06-14T10:00:10Z",
+    "events": [
+      {
+        "event_id": "sample-pick-started",
+        "event_type": "task.started",
+        "payload": {},
+        "summary": "Pick-and-place task started.",
+        "timestamp": "2026-06-14T10:00:00Z",
+        "trace_id": "sample-pick-and-place"
+      },
+      {
+        "event_id": "sample-pick-succeeded",
+        "event_type": "task.succeeded",
+        "payload": {
+          "cycle_time_seconds": 10
+        },
+        "summary": "Part placed into target fixture.",
+        "timestamp": "2026-06-14T10:00:10Z",
+        "trace_id": "sample-pick-and-place"
+      }
+    ],
+    "started_at": "2026-06-14T10:00:00Z",
+    "task_name": "pick-and-place",
+    "trace_id": "sample-pick-and-place"
+  },
+  {
+    "ended_at": "2026-06-14T13:00:40Z",
+    "events": [
+      {
+        "event_id": "sample-recovery-failed",
+        "event_type": "task.failed",
+        "payload": {
+          "reason": "timeout",
+          "retry_group": "dock-approach"
+        },
+        "summary": "Docking approach timed out.",
+        "timestamp": "2026-06-14T13:00:12Z",
+        "trace_id": "sample-failure-recovery"
+      },
+      {
+        "event_id": "sample-recovery-succeeded",
+        "event_type": "task.succeeded",
+        "payload": {},
+        "summary": "Docking succeeded after recovery.",
+        "timestamp": "2026-06-14T13:00:40Z",
+        "trace_id": "sample-failure-recovery"
+      }
+    ],
+    "started_at": "2026-06-14T13:00:00Z",
+    "task_name": "dock-with-recovery",
+    "trace_id": "sample-failure-recovery"
+  }
+]
