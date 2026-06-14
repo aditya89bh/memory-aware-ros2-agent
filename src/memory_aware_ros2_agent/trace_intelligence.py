@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Protocol
 
-from memory_aware_ros2_agent.models import TaskTrace
+from memory_aware_ros2_agent.models import EventType, MemoryEvent, TaskTrace
 
 
 @dataclass(frozen=True)
@@ -52,6 +52,51 @@ class TaskDurationAnalyzer:
             insight_type="task_duration",
             summary=summary,
             details={"duration_seconds": duration},
+        )
+
+
+def failure_events(trace: TaskTrace) -> tuple[MemoryEvent, ...]:
+    """Return failure events from a trace."""
+
+    return tuple(
+        event for event in trace.events if event.event_type == EventType.TASK_FAILED
+    )
+
+
+def failure_pattern_counts(trace: TaskTrace) -> dict[str, int]:
+    """Count failure reasons from event payloads and summaries."""
+
+    counts: dict[str, int] = {}
+    for event in failure_events(trace):
+        reason = str(event.payload.get("reason") or event.summary)
+        counts[reason] = counts.get(reason, 0) + 1
+    return counts
+
+
+class FailurePatternAnalyzer:
+    """Analyze failure patterns in a task trace."""
+
+    def analyze(self, trace: TaskTrace) -> TraceInsight:
+        counts = failure_pattern_counts(trace)
+        if not counts:
+            return TraceInsight(
+                trace_id=trace.trace_id,
+                insight_type="failure_patterns",
+                summary="No failures were recorded.",
+                details={"failure_count": 0, "patterns": {}},
+            )
+
+        dominant_reason, dominant_count = max(
+            counts.items(), key=lambda item: (item[1], item[0])
+        )
+        return TraceInsight(
+            trace_id=trace.trace_id,
+            insight_type="failure_patterns",
+            summary=(
+                f"Most common failure was '{dominant_reason}' "
+                f"({dominant_count} occurrences)."
+            ),
+            details={"failure_count": sum(counts.values()), "patterns": counts},
         )
 
 
