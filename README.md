@@ -82,7 +82,10 @@ configuration, retention, backup, restore, and migration utilities.
 See [Phase 4 Summary](docs/phase4_summary.md) for the completed persistence
 scope and deferred work.
 
+See [Recall Engine](docs/recall_engine.md) for Phase 5 retrieval engines,
+filters, scoring, ranking, evaluation metrics, and examples.
+
 ## Status
 
-Phase 3 ROS2 integration and Phase 4 persistence are complete. Recall
-algorithms remain a future phase.
+Phase 3 ROS2 integration, Phase 4 persistence, and Phase 5 recall engine
+support are complete.
