@@ -91,7 +91,10 @@ scope and deferred work.
 See [Trace Intelligence](docs/trace_intelligence.md) for Phase 6 analyzers,
 benchmarks, reports, visualizations, and examples.
 
+See [Phase 6 Summary](docs/phase6_summary.md) for the completed trace
+intelligence scope and deferred work.
+
 ## Status
 
 Phase 3 ROS2 integration, Phase 4 persistence, and Phase 5 recall engine
-support are complete. Phase 6 trace intelligence is in progress.
+support are complete. Phase 6 trace intelligence is complete.
