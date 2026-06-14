@@ -5,14 +5,20 @@ from __future__ import annotations
 from typing import Any
 
 from memory_aware_ros2_agent.ros_compat import Node, Trigger
+from memory_aware_ros2_agent.ros_config import RosNodeConfig, declare_ros_node_config
 
 
 class RecallService(Node):
     """Expose a recall service placeholder without implementing recall algorithms."""
 
-    def __init__(self) -> None:
+    def __init__(self, config: RosNodeConfig | None = None) -> None:
         super().__init__("recall_service")
-        self.create_service(Trigger, "memory/recall", self.handle_recall)
+        self.config = declare_ros_node_config(self, config)
+        self.create_service(
+            Trigger,
+            self.config.recall_service_name,
+            self.handle_recall,
+        )
 
     def handle_recall(
         self,

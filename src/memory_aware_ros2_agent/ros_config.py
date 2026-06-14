@@ -1,0 +1,44 @@
+"""Shared ROS2 node configuration helpers."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Any
+
+from memory_aware_ros2_agent.ros_compat import Node
+
+
+@dataclass(frozen=True)
+class RosNodeConfig:
+    """Runtime settings shared by the ROS2 integration nodes."""
+
+    memory_events_topic: str = "memory/events"
+    memory_traces_topic: str = "memory/traces"
+    recall_service_name: str = "memory/recall"
+    queue_depth: int = 10
+
+
+def declare_ros_node_config(
+    node: Node,
+    defaults: RosNodeConfig | None = None,
+) -> RosNodeConfig:
+    """Declare common ROS parameters and return their resolved values."""
+
+    config = defaults or RosNodeConfig()
+    return RosNodeConfig(
+        memory_events_topic=str(
+            _declare_parameter(node, "memory_events_topic", config.memory_events_topic)
+        ),
+        memory_traces_topic=str(
+            _declare_parameter(node, "memory_traces_topic", config.memory_traces_topic)
+        ),
+        recall_service_name=str(
+            _declare_parameter(node, "recall_service_name", config.recall_service_name)
+        ),
+        queue_depth=int(_declare_parameter(node, "queue_depth", config.queue_depth)),
+    )
+
+
+def _declare_parameter(node: Node, name: str, default: Any) -> Any:
+    parameter = node.declare_parameter(name, default)
+    return getattr(parameter, "value", default)

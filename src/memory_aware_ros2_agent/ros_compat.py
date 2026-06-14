@@ -23,6 +23,7 @@ if TYPE_CHECKING:
         """Typed fallback node used by static analysis."""
 
         def __init__(self, name: str, **kwargs: Any) -> None: ...
+        def declare_parameter(self, name: str, value: Any) -> Any: ...
         def create_publisher(self, *args: Any, **kwargs: Any) -> Any: ...
         def create_subscription(self, *args: Any, **kwargs: Any) -> Any: ...
         def create_service(self, *args: Any, **kwargs: Any) -> Any: ...
@@ -62,6 +63,11 @@ else:
 
             def __init__(self, name: str, **_: Any) -> None:
                 self.name = name
+                self._parameters: dict[str, Any] = {}
+
+            def declare_parameter(self, name: str, value: Any) -> Any:
+                self._parameters[name] = value
+                return type("FallbackParameter", (), {"value": value})()
 
             def create_publisher(self, *_: Any, **__: Any) -> Any:
                 return None
