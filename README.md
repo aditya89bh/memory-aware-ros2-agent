@@ -85,6 +85,9 @@ scope and deferred work.
 See [Recall Engine](docs/recall_engine.md) for Phase 5 retrieval engines,
 filters, scoring, ranking, evaluation metrics, and examples.
 
+See [Phase 5 Summary](docs/phase5_summary.md) for the completed recall engine
+scope and deferred work.
+
 ## Status
 
 Phase 3 ROS2 integration, Phase 4 persistence, and Phase 5 recall engine
