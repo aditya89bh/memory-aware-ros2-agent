@@ -95,3 +95,49 @@ def event_types_from_query(query: RecallQuery) -> tuple[EventType, ...]:
     else:
         raw_values = tuple(raw_event_types)
     return tuple(EventType(str(value)) for value in raw_values)
+
+
+def filter_events_by_query_time_window(
+    events: tuple[MemoryEvent, ...],
+    query: RecallQuery,
+) -> tuple[MemoryEvent, ...]:
+    """Filter events using query.filters['started_at'] and ['ended_at']."""
+
+    started_at = query.filters.get("started_at")
+    ended_at = query.filters.get("ended_at")
+    if started_at is None and ended_at is None:
+        return events
+    started = None if started_at is None else str(started_at)
+    ended = None if ended_at is None else str(ended_at)
+    return tuple(
+        event
+        for event in events
+        if _timestamp_in_window(event.timestamp, started, ended)
+    )
+
+
+class TimeWindowRecallEngine:
+    """Recall events whose timestamps fall within a query time window."""
+
+    def recall(self, query: RecallQuery, store: MemoryStore) -> RecallResult:
+        """Return persisted events inside a time window."""
+
+        events = filter_events_by_query_time_window(
+            store.list_events(query.trace_id),
+            query,
+        )
+        return RecallResult(
+            query_id=query.query_id,
+            events=events[: query.limit],
+            scores=tuple(1.0 for _event in events[: query.limit]),
+        )
+
+
+def _timestamp_in_window(
+    timestamp: str,
+    started_at: str | None,
+    ended_at: str | None,
+) -> bool:
+    if started_at is not None and timestamp < started_at:
+        return False
+    return not (ended_at is not None and timestamp > ended_at)
