@@ -37,6 +37,7 @@ dev = [
 ]
 
 [project.scripts]
+memory-inspect = "memory_aware_ros2_agent.cli:inspect_main"
 memory-lifecycle = "memory_aware_ros2_agent.lifecycle_node:main"
 memory-recorder = "memory_aware_ros2_agent.memory_recorder_node:main"
 recall-service = "memory_aware_ros2_agent.recall_service_node:main"
