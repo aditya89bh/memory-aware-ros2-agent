@@ -4,7 +4,12 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from memory_aware_ros2_agent.models import MemoryEvent, RecallQuery, RecallResult
+from memory_aware_ros2_agent.models import (
+    EventType,
+    MemoryEvent,
+    RecallQuery,
+    RecallResult,
+)
 from memory_aware_ros2_agent.persistence import MemoryStore
 
 
@@ -65,3 +70,28 @@ class TaskBasedRecallEngine:
             events=events[: query.limit],
             scores=tuple(1.0 for _event in events[: query.limit]),
         )
+
+
+def filter_events_by_query_event_types(
+    events: tuple[MemoryEvent, ...],
+    query: RecallQuery,
+) -> tuple[MemoryEvent, ...]:
+    """Filter events using query.filters['event_types'] when present."""
+
+    allowed_types = event_types_from_query(query)
+    if not allowed_types:
+        return events
+    return tuple(event for event in events if event.event_type in allowed_types)
+
+
+def event_types_from_query(query: RecallQuery) -> tuple[EventType, ...]:
+    """Read event type filters from a recall query."""
+
+    raw_event_types = query.filters.get("event_types")
+    if raw_event_types is None:
+        return ()
+    if isinstance(raw_event_types, str):
+        raw_values = (raw_event_types,)
+    else:
+        raw_values = tuple(raw_event_types)
+    return tuple(EventType(str(value)) for value in raw_values)
