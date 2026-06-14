@@ -1,0 +1,12 @@
+[
+  {
+    "elapsed_seconds": 8.338899351656437e-05,
+    "item_count": 25,
+    "name": "load_fixture_creation"
+  },
+  {
+    "elapsed_seconds": 0.00010051199933513999,
+    "item_count": 5,
+    "name": "exact_match_recall"
+  }
+]
