@@ -8,7 +8,7 @@ PACKAGE_NAME = "memory_aware_ros2_agent"
 
 setup(
     name=PACKAGE_NAME,
-    version="0.1.0",
+    version="1.0.0",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     data_files=[
@@ -26,6 +26,10 @@ setup(
     license="MIT",
     entry_points={
         "console_scripts": [
+            "memory-benchmark = memory_aware_ros2_agent.cli:benchmark_main",
+            "memory-export = memory_aware_ros2_agent.cli:export_main",
+            "memory-import = memory_aware_ros2_agent.cli:import_main",
+            "memory-inspect = memory_aware_ros2_agent.cli:inspect_main",
             "memory-lifecycle = memory_aware_ros2_agent.lifecycle_node:main",
             "memory-recorder = memory_aware_ros2_agent.memory_recorder_node:main",
             "recall-service = memory_aware_ros2_agent.recall_service_node:main",

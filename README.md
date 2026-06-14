@@ -2,9 +2,9 @@
 
 Production-grade ROS2 package foundation for memory events, task traces, and recall in robot workflows.
 
-This project will provide a clean Python package that helps robot nodes record task events,
-persist task traces, and recall relevant past events for future decisions. Phase 1 keeps the
-repository intentionally minimal: package structure, tooling, docs, and tests only.
+This project provides a clean Python package that helps robot nodes record task
+events, persist task traces, and recall relevant past events for future
+decisions.
 
 ## Why Memory-Aware Robotics Matters
 
@@ -49,7 +49,8 @@ Robot Workflow
 python -m pip install memory-aware-ros2-agent
 ```
 
-The package is not published yet. During early development, install from a local checkout.
+For local development, install from a checkout with `python -m pip install -e
+".[dev]"`.
 
 ## Development Setup
 
@@ -100,8 +101,13 @@ and [Operations Guide](docs/operations.md) for Phase 7 hardening practices.
 See [Phase 7 Summary](docs/phase7_summary.md) for the completed production
 hardening scope and deferred work.
 
+See [Developer Quickstart](docs/developer_quickstart.md),
+[API Reference](docs/api_reference.md), [FAQ](docs/faq.md), and
+[v1.0.0 Release Notes](docs/release_notes_v1.0.0.md) for the release-candidate
+developer experience.
+
 ## Status
 
-Phase 3 ROS2 integration, Phase 4 persistence, and Phase 5 recall engine
-support are complete. Phase 6 trace intelligence and Phase 7 production
-hardening are complete.
+Phase 3 ROS2 integration, Phase 4 persistence, Phase 5 recall engine, Phase 6
+trace intelligence, Phase 7 production hardening, and Phase 8 developer
+experience/release preparation are complete for v1.0.0.
