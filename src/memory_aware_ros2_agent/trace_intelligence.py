@@ -118,6 +118,16 @@ class ReplayStep:
     summary: str
 
 
+@dataclass(frozen=True)
+class ExperienceSummary:
+    """High-level operational summary of a task trace."""
+
+    trace_id: str
+    task_name: str
+    status: str
+    highlights: tuple[str, ...]
+
+
 class TraceAnalyzer(Protocol):
     """Contract for turning raw task traces into actionable insight."""
 
@@ -708,6 +718,52 @@ def build_replay_steps(trace: TaskTrace) -> tuple[ReplayStep, ...]:
         )
         previous_timestamp = step.timestamp
     return tuple(replay_steps)
+
+
+def summarize_experience(trace: TaskTrace) -> ExperienceSummary:
+    """Build a concise experience summary from trace intelligence."""
+
+    outcome = summarize_outcome(trace)
+    statistics = calculate_execution_statistics(trace)
+    highlights = [
+        f"Task {trace.task_name} {outcome.status}.",
+        f"Recorded {statistics.event_count} events.",
+    ]
+    if outcome.duration_seconds is not None:
+        highlights.append(f"Duration was {outcome.duration_seconds:.1f} seconds.")
+    repeated_failures = detect_repeated_failures(trace)
+    if repeated_failures:
+        highlights.append(
+            f"Repeated failure: {repeated_failures[0].reason} "
+            f"({repeated_failures[0].count} times)."
+        )
+    anomalies = detect_trace_anomalies(trace, require_terminal_event=False)
+    if anomalies:
+        highlights.append(f"Anomalies detected: {len(anomalies)}.")
+
+    return ExperienceSummary(
+        trace_id=trace.trace_id,
+        task_name=trace.task_name,
+        status=outcome.status,
+        highlights=tuple(highlights),
+    )
+
+
+class ExperienceSummaryAnalyzer:
+    """Analyze a trace into high-level operational experience."""
+
+    def analyze(self, trace: TaskTrace) -> TraceInsight:
+        summary = summarize_experience(trace)
+        return TraceInsight(
+            trace_id=trace.trace_id,
+            insight_type="experience_summary",
+            summary=" ".join(summary.highlights),
+            details={
+                "task_name": summary.task_name,
+                "status": summary.status,
+                "highlights": summary.highlights,
+            },
+        )
 
 
 def _latest_event_timestamp(trace: TaskTrace) -> str | None:
