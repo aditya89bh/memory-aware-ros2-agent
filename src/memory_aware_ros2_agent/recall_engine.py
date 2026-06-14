@@ -187,3 +187,32 @@ def rank_events_by_score(
         key=lambda item: (-item[1][1], item[0]),
     )
     return tuple(event for _index, (event, _score) in ranked)
+
+
+def composite_scores(
+    score_vectors: tuple[tuple[float, ...], ...],
+    weights: tuple[float, ...],
+) -> tuple[float, ...]:
+    """Combine score vectors with normalized weights."""
+
+    if len(score_vectors) != len(weights):
+        msg = "score_vectors and weights must have the same length"
+        raise ValueError(msg)
+    if not score_vectors:
+        return ()
+    expected_length = len(score_vectors[0])
+    if any(len(vector) != expected_length for vector in score_vectors):
+        msg = "score vectors must have the same length"
+        raise ValueError(msg)
+    total_weight = sum(weights)
+    if total_weight <= 0:
+        msg = "weights must sum to a positive value"
+        raise ValueError(msg)
+    return tuple(
+        sum(
+            vector[index] * weight
+            for vector, weight in zip(score_vectors, weights, strict=True)
+        )
+        / total_weight
+        for index in range(expected_length)
+    )
