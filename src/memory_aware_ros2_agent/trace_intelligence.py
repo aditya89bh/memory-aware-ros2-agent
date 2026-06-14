@@ -38,6 +38,15 @@ class RepeatedFailure:
     count: int
 
 
+@dataclass(frozen=True)
+class TraceAnomaly:
+    """Unusual condition detected in a trace."""
+
+    anomaly_type: str
+    severity: str
+    description: str
+
+
 class TraceAnalyzer(Protocol):
     """Contract for turning raw task traces into actionable insight."""
 
@@ -244,6 +253,102 @@ class RepeatedFailureAnalyzer:
                     {"reason": failure.reason, "count": failure.count}
                     for failure in repeated_failures
                 ),
+            },
+        )
+
+
+def detect_trace_anomalies(
+    trace: TaskTrace,
+    *,
+    max_duration_seconds: float | None = None,
+    require_terminal_event: bool = True,
+) -> tuple[TraceAnomaly, ...]:
+    """Detect deterministic anomalies in a task trace."""
+
+    anomalies: list[TraceAnomaly] = []
+    sequence = extract_event_sequence(trace)
+    terminal_types = {EventType.TASK_FAILED, EventType.TASK_SUCCEEDED}
+
+    if require_terminal_event and not any(
+        step.event_type in terminal_types for step in sequence
+    ):
+        anomalies.append(
+            TraceAnomaly(
+                anomaly_type="missing_terminal_event",
+                severity="medium",
+                description="Trace has no success or failure terminal event.",
+            )
+        )
+
+    duration = task_duration_seconds(trace)
+    if (
+        max_duration_seconds is not None
+        and duration is not None
+        and duration > max_duration_seconds
+    ):
+        anomalies.append(
+            TraceAnomaly(
+                anomaly_type="duration_exceeded",
+                severity="high",
+                description=(
+                    f"Trace duration {duration:.1f}s exceeded "
+                    f"{max_duration_seconds:.1f}s."
+                ),
+            )
+        )
+
+    seen_success = False
+    for step in sequence:
+        if step.event_type == EventType.TASK_SUCCEEDED:
+            seen_success = True
+        if seen_success and step.event_type == EventType.TASK_FAILED:
+            anomalies.append(
+                TraceAnomaly(
+                    anomaly_type="failure_after_success",
+                    severity="high",
+                    description="Failure event appeared after a success event.",
+                )
+            )
+            break
+
+    return tuple(anomalies)
+
+
+class TraceAnomalyAnalyzer:
+    """Analyze a trace for deterministic anomalies."""
+
+    def __init__(
+        self,
+        *,
+        max_duration_seconds: float | None = None,
+        require_terminal_event: bool = True,
+    ) -> None:
+        self.max_duration_seconds = max_duration_seconds
+        self.require_terminal_event = require_terminal_event
+
+    def analyze(self, trace: TaskTrace) -> TraceInsight:
+        anomalies = detect_trace_anomalies(
+            trace,
+            max_duration_seconds=self.max_duration_seconds,
+            require_terminal_event=self.require_terminal_event,
+        )
+        return TraceInsight(
+            trace_id=trace.trace_id,
+            insight_type="trace_anomalies",
+            summary=(
+                "No trace anomalies were detected."
+                if not anomalies
+                else f"Detected {len(anomalies)} trace anomalies."
+            ),
+            details={
+                "anomalies": tuple(
+                    {
+                        "anomaly_type": anomaly.anomaly_type,
+                        "severity": anomaly.severity,
+                        "description": anomaly.description,
+                    }
+                    for anomaly in anomalies
+                )
             },
         )
 
