@@ -76,7 +76,10 @@ lifecycle diagnostics, and validation commands.
 See [Phase 3 Summary](docs/phase3_summary.md) for the completed ROS2
 integration scope and deferred work.
 
+See [Persistence Layer](docs/persistence.md) for Phase 4 storage backends,
+configuration, retention, backup, restore, and migration utilities.
+
 ## Status
 
-Phase 3 ROS2 integration is complete. Persistence and recall algorithms remain
-future phases.
+Phase 3 ROS2 integration and Phase 4 persistence are complete. Recall
+algorithms remain a future phase.
