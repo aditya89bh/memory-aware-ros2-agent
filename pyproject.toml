@@ -27,6 +27,7 @@ dependencies = []
 [project.optional-dependencies]
 dev = [
   "build",
+  "cyclonedx-bom",
   "mypy",
   "pip-audit",
   "pytest",
