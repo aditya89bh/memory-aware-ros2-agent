@@ -216,3 +216,22 @@ def composite_scores(
         / total_weight
         for index in range(expected_length)
     )
+
+
+def filter_events_by_query_metadata(
+    events: tuple[MemoryEvent, ...],
+    query: RecallQuery,
+) -> tuple[MemoryEvent, ...]:
+    """Filter events using exact payload matches from query.filters['metadata']."""
+
+    metadata = query.filters.get("metadata")
+    if metadata is None:
+        return events
+    if not isinstance(metadata, dict):
+        msg = "metadata filter must be a mapping"
+        raise ValueError(msg)
+    return tuple(
+        event
+        for event in events
+        if all(event.payload.get(str(key)) == value for key, value in metadata.items())
+    )
