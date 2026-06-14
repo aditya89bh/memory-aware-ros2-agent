@@ -255,3 +255,15 @@ def filter_events_by_query_source_nodes(
         for event in events
         if str(event.payload.get("source_node_id", "")) in allowed
     )
+
+
+def top_k_events(
+    events: tuple[MemoryEvent, ...],
+    scores: tuple[float, ...],
+    k: int,
+) -> tuple[MemoryEvent, ...]:
+    """Return the top-k events by score."""
+
+    if k <= 0:
+        return ()
+    return rank_events_by_score(events, scores)[:k]
