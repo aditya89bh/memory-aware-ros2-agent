@@ -267,3 +267,16 @@ def top_k_events(
     if k <= 0:
         return ()
     return rank_events_by_score(events, scores)[:k]
+
+
+def paginate_events(
+    events: tuple[MemoryEvent, ...],
+    query: RecallQuery,
+) -> tuple[MemoryEvent, ...]:
+    """Paginate events using query filters offset and page_size."""
+
+    offset = max(0, int(query.filters.get("offset", 0)))
+    page_size = int(query.filters.get("page_size", query.limit))
+    if page_size <= 0:
+        return ()
+    return events[offset : offset + page_size]
