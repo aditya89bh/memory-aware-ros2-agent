@@ -235,3 +235,23 @@ def filter_events_by_query_metadata(
         for event in events
         if all(event.payload.get(str(key)) == value for key, value in metadata.items())
     )
+
+
+def filter_events_by_query_source_nodes(
+    events: tuple[MemoryEvent, ...],
+    query: RecallQuery,
+) -> tuple[MemoryEvent, ...]:
+    """Filter events by payload source_node_id values."""
+
+    source_node_ids = query.filters.get("source_node_ids")
+    if source_node_ids is None:
+        return events
+    if isinstance(source_node_ids, str):
+        allowed = {source_node_ids}
+    else:
+        allowed = {str(source_node_id) for source_node_id in source_node_ids}
+    return tuple(
+        event
+        for event in events
+        if str(event.payload.get("source_node_id", "")) in allowed
+    )
