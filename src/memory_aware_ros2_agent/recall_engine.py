@@ -159,3 +159,15 @@ def recency_scores(events: tuple[MemoryEvent, ...]) -> tuple[float, ...]:
         for index, timestamp in enumerate(ordered_timestamps)
     }
     return tuple(timestamp_scores[event.timestamp] for event in events)
+
+
+def frequency_scores(events: tuple[MemoryEvent, ...]) -> tuple[float, ...]:
+    """Score events by trace frequency in the range 0.0 to 1.0."""
+
+    if not events:
+        return ()
+    trace_counts: dict[str, int] = {}
+    for event in events:
+        trace_counts[event.trace_id] = trace_counts.get(event.trace_id, 0) + 1
+    max_count = max(trace_counts.values())
+    return tuple(trace_counts[event.trace_id] / max_count for event in events)
