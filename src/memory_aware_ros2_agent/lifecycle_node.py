@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from memory_aware_ros2_agent.ros_compat import (
+    DiagnosticStatus,
     LifecycleNode,
     TransitionCallbackReturn,
 )
@@ -13,6 +14,7 @@ from memory_aware_ros2_agent.ros_config import (
     declare_ros_node_config,
     namespace_for_node,
 )
+from memory_aware_ros2_agent.ros_diagnostics import make_diagnostic_status
 from memory_aware_ros2_agent.ros_logging import log_info
 
 
@@ -64,6 +66,20 @@ class MemoryLifecycleNode(LifecycleNode):
         self.is_active = False
         log_info(self.get_logger(), "lifecycle_shutdown")
         return TransitionCallbackReturn.SUCCESS
+
+    def diagnostic_status(self) -> DiagnosticStatus:
+        """Return a diagnostic snapshot for lifecycle state."""
+
+        return make_diagnostic_status(
+            name=self.get_name(),
+            message="active" if self.is_active else "inactive",
+            ok=self.is_configured,
+            values={
+                "configured": self.is_configured,
+                "active": self.is_active,
+                "namespace": self.config.namespace,
+            },
+        )
 
 
 def main() -> None:

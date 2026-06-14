@@ -27,6 +27,7 @@ if TYPE_CHECKING:
         def create_publisher(self, *args: Any, **kwargs: Any) -> Any: ...
         def create_subscription(self, *args: Any, **kwargs: Any) -> Any: ...
         def create_service(self, *args: Any, **kwargs: Any) -> Any: ...
+        def get_name(self) -> str: ...
         def get_logger(self) -> _FallbackLogger: ...
         def destroy_node(self) -> None: ...
 
@@ -98,9 +99,32 @@ if TYPE_CHECKING:
 
             def __init__(self) -> None: ...
 
+    class KeyValue:
+        """Typed fallback diagnostic key/value message."""
+
+        key: str
+        value: str
+
+        def __init__(self, key: str = "", value: str = "") -> None: ...
+
+    class DiagnosticStatus:
+        """Typed fallback diagnostic status message."""
+
+        OK: Any
+        WARN: Any
+        ERROR: Any
+        level: int
+        name: str
+        message: str
+        hardware_id: str
+        values: list[KeyValue]
+
+        def __init__(self) -> None: ...
+
 else:
     try:
         import rclpy
+        from diagnostic_msgs.msg import DiagnosticStatus, KeyValue
         from rclpy.callback_groups import (
             MutuallyExclusiveCallbackGroup,
             ReentrantCallbackGroup,
@@ -147,6 +171,9 @@ else:
 
             def create_service(self, *_: Any, **__: Any) -> Any:
                 return None
+
+            def get_name(self) -> str:
+                return self.name
 
             def get_logger(self) -> _FallbackLogger:
                 return _FallbackLogger()
@@ -233,10 +260,33 @@ else:
                     self.success = False
                     self.message = ""
 
+        class KeyValue:
+            """Fallback diagnostic key/value message."""
+
+            def __init__(self, key: str = "", value: str = "") -> None:
+                self.key = key
+                self.value = value
+
+        class DiagnosticStatus:
+            """Fallback diagnostic status message."""
+
+            OK = 0
+            WARN = 1
+            ERROR = 2
+
+            def __init__(self) -> None:
+                self.level = self.OK
+                self.name = ""
+                self.message = ""
+                self.hardware_id = ""
+                self.values: list[KeyValue] = []
+
 
 __all__ = [
+    "DiagnosticStatus",
     "DurabilityPolicy",
     "HistoryPolicy",
+    "KeyValue",
     "LifecycleNode",
     "MultiThreadedExecutor",
     "MutuallyExclusiveCallbackGroup",
