@@ -3,20 +3,15 @@
 from __future__ import annotations
 
 from memory_aware_ros2_agent.ros_config import RosNodeConfig
+from memory_aware_ros2_agent.ros_topics import normalize_ros_name
 
 
 def validate_ros_node_config(config: RosNodeConfig) -> None:
     """Validate shared ROS node configuration before creating entities."""
 
-    _require_non_empty("memory_events_topic", config.memory_events_topic)
-    _require_non_empty("memory_traces_topic", config.memory_traces_topic)
-    _require_non_empty("recall_service_name", config.recall_service_name)
+    normalize_ros_name(config.memory_events_topic)
+    normalize_ros_name(config.memory_traces_topic)
+    normalize_ros_name(config.recall_service_name)
     if config.queue_depth <= 0:
         msg = "queue_depth must be greater than zero"
-        raise ValueError(msg)
-
-
-def _require_non_empty(field_name: str, value: str) -> None:
-    if not value.strip():
-        msg = f"{field_name} must not be empty"
         raise ValueError(msg)

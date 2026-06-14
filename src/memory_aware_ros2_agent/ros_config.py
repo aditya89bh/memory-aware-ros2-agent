@@ -6,15 +6,20 @@ from dataclasses import dataclass
 from typing import Any
 
 from memory_aware_ros2_agent.ros_compat import Node
+from memory_aware_ros2_agent.ros_topics import (
+    MEMORY_EVENTS_TOPIC,
+    MEMORY_TRACES_TOPIC,
+    RECALL_SERVICE_NAME,
+)
 
 
 @dataclass(frozen=True)
 class RosNodeConfig:
     """Runtime settings shared by the ROS2 integration nodes."""
 
-    memory_events_topic: str = "memory/events"
-    memory_traces_topic: str = "memory/traces"
-    recall_service_name: str = "memory/recall"
+    memory_events_topic: str = MEMORY_EVENTS_TOPIC
+    memory_traces_topic: str = MEMORY_TRACES_TOPIC
+    recall_service_name: str = RECALL_SERVICE_NAME
     queue_depth: int = 10
 
 
