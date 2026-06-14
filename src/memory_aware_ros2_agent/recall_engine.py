@@ -30,6 +30,15 @@ class RecallExplanation:
     reason: str
 
 
+@dataclass(frozen=True)
+class RecallQueryPlan:
+    """Planned recall steps for a query."""
+
+    filters: tuple[str, ...] = ()
+    scorers: tuple[str, ...] = ()
+    limit: int = 5
+
+
 class ExactMatchRecallEngine:
     """Recall events whose text contains the query text."""
 
@@ -306,4 +315,26 @@ def explain_recall_result(result: RecallResult) -> tuple[RecallExplanation, ...]
             reason=f"Matched {event.event_type.value} event: {event.summary}",
         )
         for event, score in zip(result.events, scores, strict=True)
+    )
+
+
+def plan_recall_query(query: RecallQuery) -> RecallQueryPlan:
+    """Plan filtering and scoring steps for a recall query."""
+
+    filters: list[str] = []
+    if query.trace_id is not None:
+        filters.append("trace")
+    if "event_types" in query.filters:
+        filters.append("event_type")
+    if "started_at" in query.filters or "ended_at" in query.filters:
+        filters.append("time_window")
+    if "metadata" in query.filters:
+        filters.append("metadata")
+    if "source_node_ids" in query.filters:
+        filters.append("source_node")
+    scorers = list(query.filters.get("scorers", ("recency", "frequency")))
+    return RecallQueryPlan(
+        filters=tuple(filters),
+        scorers=tuple(str(scorer) for scorer in scorers),
+        limit=query.limit,
     )
