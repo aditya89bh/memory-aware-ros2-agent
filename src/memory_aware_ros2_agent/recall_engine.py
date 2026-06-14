@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Protocol
 
 from memory_aware_ros2_agent.models import (
@@ -18,6 +19,15 @@ class RecallEngine(Protocol):
 
     def recall(self, query: RecallQuery, store: MemoryStore) -> RecallResult:
         """Return relevant persisted memories for a query."""
+
+
+@dataclass(frozen=True)
+class RecallExplanation:
+    """Human-readable reason for a recalled event."""
+
+    event_id: str
+    score: float
+    reason: str
 
 
 class ExactMatchRecallEngine:
@@ -280,3 +290,20 @@ def paginate_events(
     if page_size <= 0:
         return ()
     return events[offset : offset + page_size]
+
+
+def explain_recall_result(result: RecallResult) -> tuple[RecallExplanation, ...]:
+    """Create explanations for a recall result."""
+
+    scores = result.scores or tuple(1.0 for _event in result.events)
+    if len(scores) != len(result.events):
+        msg = "scores must match recalled events"
+        raise ValueError(msg)
+    return tuple(
+        RecallExplanation(
+            event_id=event.event_id,
+            score=score,
+            reason=f"Matched {event.event_type.value} event: {event.summary}",
+        )
+        for event, score in zip(result.events, scores, strict=True)
+    )
