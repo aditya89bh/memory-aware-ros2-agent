@@ -171,3 +171,19 @@ def frequency_scores(events: tuple[MemoryEvent, ...]) -> tuple[float, ...]:
         trace_counts[event.trace_id] = trace_counts.get(event.trace_id, 0) + 1
     max_count = max(trace_counts.values())
     return tuple(trace_counts[event.trace_id] / max_count for event in events)
+
+
+def rank_events_by_score(
+    events: tuple[MemoryEvent, ...],
+    scores: tuple[float, ...],
+) -> tuple[MemoryEvent, ...]:
+    """Return events sorted by descending score while preserving stable ties."""
+
+    if len(events) != len(scores):
+        msg = "events and scores must have the same length"
+        raise ValueError(msg)
+    ranked = sorted(
+        enumerate(zip(events, scores, strict=True)),
+        key=lambda item: (-item[1][1], item[0]),
+    )
+    return tuple(event for _index, (event, _score) in ranked)
