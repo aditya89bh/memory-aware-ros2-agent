@@ -25,7 +25,7 @@ def declare_ros_node_config(
     """Declare common ROS parameters and return their resolved values."""
 
     config = defaults or RosNodeConfig()
-    return RosNodeConfig(
+    resolved = RosNodeConfig(
         memory_events_topic=str(
             _declare_parameter(node, "memory_events_topic", config.memory_events_topic)
         ),
@@ -37,6 +37,10 @@ def declare_ros_node_config(
         ),
         queue_depth=int(_declare_parameter(node, "queue_depth", config.queue_depth)),
     )
+    from memory_aware_ros2_agent.ros_validation import validate_ros_node_config
+
+    validate_ros_node_config(resolved)
+    return resolved
 
 
 def _declare_parameter(node: Node, name: str, default: Any) -> Any:
