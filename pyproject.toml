@@ -37,6 +37,7 @@ dev = [
 ]
 
 [project.scripts]
+memory-export = "memory_aware_ros2_agent.cli:export_main"
 memory-inspect = "memory_aware_ros2_agent.cli:inspect_main"
 memory-lifecycle = "memory_aware_ros2_agent.lifecycle_node:main"
 memory-recorder = "memory_aware_ros2_agent.memory_recorder_node:main"

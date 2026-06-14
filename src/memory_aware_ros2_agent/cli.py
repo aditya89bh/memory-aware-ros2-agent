@@ -40,3 +40,23 @@ def inspect_main(argv: list[str] | None = None) -> None:
 
 def _load_json(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def export_memory_files(paths: list[Path], output_path: Path) -> int:
+    """Export memory JSON files into a single JSON bundle."""
+
+    bundle = [_load_json(path) for path in paths]
+    output_path.write_text(
+        json.dumps(bundle, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    return len(bundle)
+
+
+def export_main(argv: list[str] | None = None) -> None:
+    parser = argparse.ArgumentParser(description="Export memory JSON files.")
+    parser.add_argument("paths", nargs="+", type=Path)
+    parser.add_argument("--output", required=True, type=Path)
+    args = parser.parse_args(argv)
+    count = export_memory_files(args.paths, args.output)
+    print(f"exported {count} memory records to {args.output}")
