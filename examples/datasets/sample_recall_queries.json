@@ -1,0 +1,33 @@
+[
+  {
+    "filters": {
+      "event_type": "task.observed"
+    },
+    "limit": 5,
+    "query_id": "query-observed-events",
+    "query_text": "Show observed robot events",
+    "requested_at": "2026-06-14T15:00:00Z",
+    "trace_id": null
+  },
+  {
+    "filters": {
+      "task_name": "pick-and-place"
+    },
+    "limit": 3,
+    "query_id": "query-pick-place",
+    "query_text": "Find prior pick-and-place experience",
+    "requested_at": "2026-06-14T15:01:00Z",
+    "trace_id": "sample-pick-and-place"
+  },
+  {
+    "filters": {
+      "reason": "timeout",
+      "retry_group": "dock-approach"
+    },
+    "limit": 3,
+    "query_id": "query-recovery-timeout",
+    "query_text": "Recall recovery steps for docking timeouts",
+    "requested_at": "2026-06-14T15:02:00Z",
+    "trace_id": "sample-failure-recovery"
+  }
+]
