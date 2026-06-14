@@ -15,6 +15,7 @@ from memory_aware_ros2_agent.ros_config import (
     declare_ros_node_config,
     namespace_for_node,
 )
+from memory_aware_ros2_agent.ros_logging import log_error, log_info
 from memory_aware_ros2_agent.ros_qos import QoSConfig, make_qos_profile
 from memory_aware_ros2_agent.serialization import memory_event_from_dict
 
@@ -50,10 +51,18 @@ class MemoryRecorder(Node):
             payload = json.loads(message.data)
             self.last_event = memory_event_from_dict(payload)
         except (KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
-            self.get_logger().error(f"Failed to record memory event: {exc}")
+            log_error(
+                self.get_logger(),
+                "memory_event_record_failed",
+                error=str(exc),
+            )
             return
 
-        self.get_logger().info(f"Recorded memory event {self.last_event.event_id}")
+        log_info(
+            self.get_logger(),
+            "memory_event_recorded",
+            event_id=self.last_event.event_id,
+        )
 
 
 def main() -> None:

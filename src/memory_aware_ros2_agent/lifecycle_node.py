@@ -13,6 +13,7 @@ from memory_aware_ros2_agent.ros_config import (
     declare_ros_node_config,
     namespace_for_node,
 )
+from memory_aware_ros2_agent.ros_logging import log_info
 
 
 class MemoryLifecycleNode(LifecycleNode):
@@ -32,21 +33,21 @@ class MemoryLifecycleNode(LifecycleNode):
         """Mark the lifecycle node as configured."""
 
         self.is_configured = True
-        self.get_logger().info("Configured memory lifecycle node")
+        log_info(self.get_logger(), "lifecycle_configured")
         return TransitionCallbackReturn.SUCCESS
 
     def on_activate(self, _state: Any) -> Any:
         """Mark the lifecycle node as active."""
 
         self.is_active = True
-        self.get_logger().info("Activated memory lifecycle node")
+        log_info(self.get_logger(), "lifecycle_activated")
         return TransitionCallbackReturn.SUCCESS
 
     def on_deactivate(self, _state: Any) -> Any:
         """Mark the lifecycle node as inactive."""
 
         self.is_active = False
-        self.get_logger().info("Deactivated memory lifecycle node")
+        log_info(self.get_logger(), "lifecycle_deactivated")
         return TransitionCallbackReturn.SUCCESS
 
     def on_cleanup(self, _state: Any) -> Any:
@@ -54,14 +55,14 @@ class MemoryLifecycleNode(LifecycleNode):
 
         self.is_active = False
         self.is_configured = False
-        self.get_logger().info("Cleaned up memory lifecycle node")
+        log_info(self.get_logger(), "lifecycle_cleaned_up")
         return TransitionCallbackReturn.SUCCESS
 
     def on_shutdown(self, _state: Any) -> Any:
         """Mark the lifecycle node as shut down."""
 
         self.is_active = False
-        self.get_logger().info("Shut down memory lifecycle node")
+        log_info(self.get_logger(), "lifecycle_shutdown")
         return TransitionCallbackReturn.SUCCESS
 
 

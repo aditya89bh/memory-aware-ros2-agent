@@ -14,6 +14,7 @@ from memory_aware_ros2_agent.ros_config import (
     declare_ros_node_config,
     namespace_for_node,
 )
+from memory_aware_ros2_agent.ros_logging import log_info
 
 
 class RecallService(Node):
@@ -43,7 +44,7 @@ class RecallService(Node):
 
         response.success = False
         response.message = "Recall algorithms are not implemented yet."
-        self.get_logger().info("Received recall request")
+        log_info(self.get_logger(), "recall_request_received")
         return response
 
 

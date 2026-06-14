@@ -15,6 +15,7 @@ from memory_aware_ros2_agent.ros_config import (
     declare_ros_node_config,
     namespace_for_node,
 )
+from memory_aware_ros2_agent.ros_logging import log_error, log_info
 from memory_aware_ros2_agent.ros_qos import QoSConfig, make_qos_profile
 from memory_aware_ros2_agent.serialization import task_trace_from_dict
 
@@ -50,10 +51,14 @@ class TraceSubscriber(Node):
             payload = json.loads(message.data)
             self.last_trace = task_trace_from_dict(payload)
         except (KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
-            self.get_logger().error(f"Failed to record task trace: {exc}")
+            log_error(self.get_logger(), "task_trace_record_failed", error=str(exc))
             return
 
-        self.get_logger().info(f"Recorded task trace {self.last_trace.trace_id}")
+        log_info(
+            self.get_logger(),
+            "task_trace_recorded",
+            trace_id=self.last_trace.trace_id,
+        )
 
 
 def main() -> None:

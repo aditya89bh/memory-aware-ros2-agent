@@ -16,6 +16,7 @@ from memory_aware_ros2_agent.ros_config import (
     declare_ros_node_config,
     namespace_for_node,
 )
+from memory_aware_ros2_agent.ros_logging import log_info
 from memory_aware_ros2_agent.ros_qos import QoSConfig, make_qos_profile
 from memory_aware_ros2_agent.serialization import model_to_dict
 
@@ -54,7 +55,7 @@ class TracePublisher(Node):
         publisher = self.publisher
         if publisher is not None:
             publisher.publish(message)
-        self.get_logger().info(f"Published task trace {trace.trace_id}")
+        log_info(self.get_logger(), "task_trace_published", trace_id=trace.trace_id)
 
 
 def main() -> None:
