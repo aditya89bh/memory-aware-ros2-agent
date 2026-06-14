@@ -50,6 +50,13 @@ class JsonFileStore:
             return events
         return tuple(event for event in events if event.trace_id == trace_id)
 
+    def delete_event(self, event_id: str) -> None:
+        """Delete a memory event by id if present."""
+
+        data = self._read()
+        data["events"].pop(event_id, None)
+        self._write(data)
+
     def save_trace(self, trace: TaskTrace) -> None:
         """Persist or replace a task trace."""
 
@@ -71,6 +78,13 @@ class JsonFileStore:
         return tuple(
             task_trace_from_dict(payload) for payload in self._read()["traces"].values()
         )
+
+    def delete_trace(self, trace_id: str) -> None:
+        """Delete a task trace by id if present."""
+
+        data = self._read()
+        data["traces"].pop(trace_id, None)
+        self._write(data)
 
     def save_recall_result(self, result: RecallResult) -> None:
         """Persist or replace a recall result."""
@@ -94,6 +108,13 @@ class JsonFileStore:
             recall_result_from_dict(payload)
             for payload in self._read()["recall_results"].values()
         )
+
+    def delete_recall_result(self, query_id: str) -> None:
+        """Delete a recall result by query id if present."""
+
+        data = self._read()
+        data["recall_results"].pop(query_id, None)
+        self._write(data)
 
     def close(self) -> None:
         """Release backend resources."""

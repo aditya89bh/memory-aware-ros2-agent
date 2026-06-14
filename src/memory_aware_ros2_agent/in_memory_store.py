@@ -31,6 +31,11 @@ class InMemoryStore:
             return events
         return tuple(event for event in events if event.trace_id == trace_id)
 
+    def delete_event(self, event_id: str) -> None:
+        """Delete a memory event by id if present."""
+
+        self._events.pop(event_id, None)
+
     def save_trace(self, trace: TaskTrace) -> None:
         """Persist or replace a task trace."""
 
@@ -46,6 +51,11 @@ class InMemoryStore:
 
         return tuple(self._traces.values())
 
+    def delete_trace(self, trace_id: str) -> None:
+        """Delete a task trace by id if present."""
+
+        self._traces.pop(trace_id, None)
+
     def save_recall_result(self, result: RecallResult) -> None:
         """Persist or replace a recall result."""
 
@@ -60,6 +70,11 @@ class InMemoryStore:
         """Return persisted recall results."""
 
         return tuple(self._recall_results.values())
+
+    def delete_recall_result(self, query_id: str) -> None:
+        """Delete a recall result by query id if present."""
+
+        self._recall_results.pop(query_id, None)
 
     def close(self) -> None:
         """Release backend resources."""

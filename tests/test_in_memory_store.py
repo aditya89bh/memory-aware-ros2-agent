@@ -81,3 +81,21 @@ def test_in_memory_store_saves_and_gets_recall_results() -> None:
 
     assert store.get_recall_result("query-001") == result
     assert store.list_recall_results() == (result,)
+
+
+def test_in_memory_store_deletes_records_by_id() -> None:
+    store = InMemoryStore()
+    event = _event("event-001")
+    trace = TaskTrace("trace-001", "inspect", "2026-06-14T10:00:00Z")
+    result = RecallResult("query-001", generated_at="2026-06-14T10:00:00Z")
+    store.save_event(event)
+    store.save_trace(trace)
+    store.save_recall_result(result)
+
+    store.delete_event(event.event_id)
+    store.delete_trace(trace.trace_id)
+    store.delete_recall_result(result.query_id)
+
+    assert store.list_events() == ()
+    assert store.list_traces() == ()
+    assert store.list_recall_results() == ()

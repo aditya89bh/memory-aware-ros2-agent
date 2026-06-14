@@ -41,6 +41,12 @@ class EventLogStore:
 
         return self._store.list_events(trace_id)
 
+    def delete_event(self, event_id: str) -> None:
+        """Append a tombstone for a memory event."""
+
+        self._append({"record_type": "delete_memory_event", "event_id": event_id})
+        self._store.delete_event(event_id)
+
     def save_trace(self, trace: TaskTrace) -> None:
         """Persist or replace a task trace in memory for interface compatibility."""
 
@@ -55,6 +61,11 @@ class EventLogStore:
         """Return in-memory task traces."""
 
         return self._store.list_traces()
+
+    def delete_trace(self, trace_id: str) -> None:
+        """Delete an in-memory task trace by id."""
+
+        self._store.delete_trace(trace_id)
 
     def save_recall_result(self, result: RecallResult) -> None:
         """Append and persist a recall result."""
@@ -71,6 +82,12 @@ class EventLogStore:
         """Return persisted recall results."""
 
         return self._store.list_recall_results()
+
+    def delete_recall_result(self, query_id: str) -> None:
+        """Append a tombstone for a recall result."""
+
+        self._append({"record_type": "delete_recall_result", "query_id": query_id})
+        self._store.delete_recall_result(query_id)
 
     def close(self) -> None:
         """Release backend resources."""
@@ -94,3 +111,7 @@ class EventLogStore:
                     self._store.save_recall_result(
                         recall_result_from_dict(record["payload"])
                     )
+                if record.get("record_type") == "delete_memory_event":
+                    self._store.delete_event(str(record["event_id"]))
+                if record.get("record_type") == "delete_recall_result":
+                    self._store.delete_recall_result(str(record["query_id"]))

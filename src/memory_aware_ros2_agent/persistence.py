@@ -19,6 +19,9 @@ class MemoryStore(Protocol):
     def list_events(self, trace_id: str | None = None) -> tuple[MemoryEvent, ...]:
         """Return persisted events, optionally filtered by trace id."""
 
+    def delete_event(self, event_id: str) -> None:
+        """Delete a memory event by id if present."""
+
     def save_trace(self, trace: TaskTrace) -> None:
         """Persist or replace a task trace."""
 
@@ -28,6 +31,9 @@ class MemoryStore(Protocol):
     def list_traces(self) -> tuple[TaskTrace, ...]:
         """Return persisted task traces."""
 
+    def delete_trace(self, trace_id: str) -> None:
+        """Delete a task trace by id if present."""
+
     def save_recall_result(self, result: RecallResult) -> None:
         """Persist or replace a recall result."""
 
@@ -36,6 +42,9 @@ class MemoryStore(Protocol):
 
     def list_recall_results(self) -> tuple[RecallResult, ...]:
         """Return persisted recall results."""
+
+    def delete_recall_result(self, query_id: str) -> None:
+        """Delete a recall result by query id if present."""
 
     def close(self) -> None:
         """Release backend resources."""

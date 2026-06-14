@@ -79,6 +79,15 @@ class SQLiteStore:
             ).fetchall()
         return tuple(memory_event_from_dict(json.loads(str(row[0]))) for row in rows)
 
+    def delete_event(self, event_id: str) -> None:
+        """Delete a memory event by id if present."""
+
+        self.connection.execute(
+            "DELETE FROM memory_events WHERE event_id = ?",
+            (event_id,),
+        )
+        self.connection.commit()
+
     def save_trace(self, trace: TaskTrace) -> None:
         """Persist or replace a task trace."""
 
@@ -116,6 +125,15 @@ class SQLiteStore:
         ).fetchall()
         return tuple(task_trace_from_dict(json.loads(str(row[0]))) for row in rows)
 
+    def delete_trace(self, trace_id: str) -> None:
+        """Delete a task trace by id if present."""
+
+        self.connection.execute(
+            "DELETE FROM task_traces WHERE trace_id = ?",
+            (trace_id,),
+        )
+        self.connection.commit()
+
     def save_recall_result(self, result: RecallResult) -> None:
         """Persist or replace a recall result."""
 
@@ -151,6 +169,15 @@ class SQLiteStore:
             "SELECT payload_json FROM recall_results ORDER BY rowid"
         ).fetchall()
         return tuple(recall_result_from_dict(json.loads(str(row[0]))) for row in rows)
+
+    def delete_recall_result(self, query_id: str) -> None:
+        """Delete a recall result by query id if present."""
+
+        self.connection.execute(
+            "DELETE FROM recall_results WHERE query_id = ?",
+            (query_id,),
+        )
+        self.connection.commit()
 
     def close(self) -> None:
         """Release backend resources."""
