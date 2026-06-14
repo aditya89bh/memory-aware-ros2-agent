@@ -57,6 +57,15 @@ class RetryChain:
     final_event_type: EventType
 
 
+@dataclass(frozen=True)
+class StateTransition:
+    """Adjacent transition between event types in a trace."""
+
+    from_event_type: EventType
+    to_event_type: EventType
+    count: int
+
+
 class TraceAnalyzer(Protocol):
     """Contract for turning raw task traces into actionable insight."""
 
@@ -411,6 +420,48 @@ class RetryChainAnalyzer:
                         "final_event_type": chain.final_event_type.value,
                     }
                     for chain in chains
+                )
+            },
+        )
+
+
+def analyze_state_transitions(trace: TaskTrace) -> tuple[StateTransition, ...]:
+    """Count adjacent event-type transitions in timestamp order."""
+
+    sequence = extract_event_sequence(trace)
+    counts: dict[tuple[EventType, EventType], int] = {}
+    for current_step, next_step in zip(sequence, sequence[1:], strict=False):
+        key = (current_step.event_type, next_step.event_type)
+        counts[key] = counts.get(key, 0) + 1
+    return tuple(
+        StateTransition(
+            from_event_type=from_event_type,
+            to_event_type=to_event_type,
+            count=count,
+        )
+        for (from_event_type, to_event_type), count in sorted(
+            counts.items(), key=lambda item: (item[0][0].value, item[0][1].value)
+        )
+    )
+
+
+class StateTransitionAnalyzer:
+    """Analyze event-type transitions in a task trace."""
+
+    def analyze(self, trace: TaskTrace) -> TraceInsight:
+        transitions = analyze_state_transitions(trace)
+        return TraceInsight(
+            trace_id=trace.trace_id,
+            insight_type="state_transitions",
+            summary=f"Detected {len(transitions)} distinct state transitions.",
+            details={
+                "transitions": tuple(
+                    {
+                        "from_event_type": transition.from_event_type.value,
+                        "to_event_type": transition.to_event_type.value,
+                        "count": transition.count,
+                    }
+                    for transition in transitions
                 )
             },
         )
