@@ -33,6 +33,17 @@ if TYPE_CHECKING:
     class LifecycleNode(Node):
         """Typed fallback lifecycle node used by static analysis."""
 
+    class SingleThreadedExecutor:
+        """Typed fallback single-threaded executor."""
+
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+        def add_node(self, node: Node) -> bool: ...
+        def spin(self) -> None: ...
+        def shutdown(self) -> None: ...
+
+    class MultiThreadedExecutor(SingleThreadedExecutor):
+        """Typed fallback multi-threaded executor."""
+
     class QoSProfile:
         """Typed fallback QoS profile."""
 
@@ -94,6 +105,7 @@ else:
             MutuallyExclusiveCallbackGroup,
             ReentrantCallbackGroup,
         )
+        from rclpy.executors import MultiThreadedExecutor, SingleThreadedExecutor
         from rclpy.node import Node
         from rclpy.qos import (
             DurabilityPolicy,
@@ -143,6 +155,27 @@ else:
 
         class LifecycleNode(Node):
             """Fallback lifecycle node used without ROS2 installed."""
+
+        class SingleThreadedExecutor:
+            """Fallback executor used without ROS2 installed."""
+
+            def __init__(self, **kwargs: Any) -> None:
+                self.kwargs = kwargs
+                self.nodes: list[Node] = []
+                self.was_shutdown = False
+
+            def add_node(self, node: Node) -> bool:
+                self.nodes.append(node)
+                return True
+
+            def spin(self) -> None:
+                return None
+
+            def shutdown(self) -> None:
+                self.was_shutdown = True
+
+        class MultiThreadedExecutor(SingleThreadedExecutor):
+            """Fallback multi-threaded executor used without ROS2 installed."""
 
         class ReliabilityPolicy:
             RELIABLE = "reliable"
@@ -204,11 +237,13 @@ __all__ = [
     "DurabilityPolicy",
     "HistoryPolicy",
     "LifecycleNode",
+    "MultiThreadedExecutor",
     "MutuallyExclusiveCallbackGroup",
     "Node",
     "QoSProfile",
     "ReliabilityPolicy",
     "ReentrantCallbackGroup",
+    "SingleThreadedExecutor",
     "String",
     "TransitionCallbackReturn",
     "Trigger",
