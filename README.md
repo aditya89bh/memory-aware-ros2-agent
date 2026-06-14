@@ -94,7 +94,14 @@ benchmarks, reports, visualizations, and examples.
 See [Phase 6 Summary](docs/phase6_summary.md) for the completed trace
 intelligence scope and deferred work.
 
+See [Production Readiness Checklist](docs/production_readiness_checklist.md)
+and [Operations Guide](docs/operations.md) for Phase 7 hardening practices.
+
+See [Phase 7 Summary](docs/phase7_summary.md) for the completed production
+hardening scope and deferred work.
+
 ## Status
 
 Phase 3 ROS2 integration, Phase 4 persistence, and Phase 5 recall engine
-support are complete. Phase 6 trace intelligence is complete.
+support are complete. Phase 6 trace intelligence and Phase 7 production
+hardening are complete.
