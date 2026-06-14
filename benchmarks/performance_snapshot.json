@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "benchmarks": [
+    {
+      "name": "load_fixture_creation",
+      "item_count": 100,
+      "max_elapsed_seconds": 0.5
+    },
+    {
+      "name": "exact_match_recall",
+      "item_count": 25,
+      "max_elapsed_seconds": 0.1
+    }
+  ]
+}
