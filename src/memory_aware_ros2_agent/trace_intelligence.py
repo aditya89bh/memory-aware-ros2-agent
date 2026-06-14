@@ -100,6 +100,53 @@ class FailurePatternAnalyzer:
         )
 
 
+def success_events(trace: TaskTrace) -> tuple[MemoryEvent, ...]:
+    """Return success events from a trace."""
+
+    return tuple(
+        event for event in trace.events if event.event_type == EventType.TASK_SUCCEEDED
+    )
+
+
+def success_pattern_counts(trace: TaskTrace) -> dict[str, int]:
+    """Count success signals from event payloads and summaries."""
+
+    counts: dict[str, int] = {}
+    for event in success_events(trace):
+        signal = str(
+            event.payload.get("signal") or event.payload.get("reason") or event.summary
+        )
+        counts[signal] = counts.get(signal, 0) + 1
+    return counts
+
+
+class SuccessPatternAnalyzer:
+    """Analyze success patterns in a task trace."""
+
+    def analyze(self, trace: TaskTrace) -> TraceInsight:
+        counts = success_pattern_counts(trace)
+        if not counts:
+            return TraceInsight(
+                trace_id=trace.trace_id,
+                insight_type="success_patterns",
+                summary="No success events were recorded.",
+                details={"success_count": 0, "patterns": {}},
+            )
+
+        dominant_signal, dominant_count = max(
+            counts.items(), key=lambda item: (item[1], item[0])
+        )
+        return TraceInsight(
+            trace_id=trace.trace_id,
+            insight_type="success_patterns",
+            summary=(
+                f"Most common success signal was '{dominant_signal}' "
+                f"({dominant_count} occurrences)."
+            ),
+            details={"success_count": sum(counts.values()), "patterns": counts},
+        )
+
+
 def _latest_event_timestamp(trace: TaskTrace) -> str | None:
     if not trace.events:
         return None
