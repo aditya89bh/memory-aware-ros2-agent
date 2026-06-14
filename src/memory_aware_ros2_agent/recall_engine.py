@@ -141,3 +141,21 @@ def _timestamp_in_window(
     if started_at is not None and timestamp < started_at:
         return False
     return not (ended_at is not None and timestamp > ended_at)
+
+
+def recency_scores(events: tuple[MemoryEvent, ...]) -> tuple[float, ...]:
+    """Score events by timestamp recency in the range 0.0 to 1.0."""
+
+    if not events:
+        return ()
+    if len(events) == 1:
+        return (1.0,)
+    ordered_timestamps = sorted({event.timestamp for event in events})
+    if len(ordered_timestamps) == 1:
+        return tuple(1.0 for _event in events)
+    max_index = len(ordered_timestamps) - 1
+    timestamp_scores = {
+        timestamp: index / max_index
+        for index, timestamp in enumerate(ordered_timestamps)
+    }
+    return tuple(timestamp_scores[event.timestamp] for event in events)
