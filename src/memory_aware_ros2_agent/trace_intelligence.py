@@ -19,6 +19,17 @@ class TraceInsight:
     details: dict[str, Any] = field(default_factory=dict)
 
 
+@dataclass(frozen=True)
+class EventSequenceStep:
+    """One ordered step extracted from a trace event."""
+
+    index: int
+    event_id: str
+    event_type: EventType
+    timestamp: str
+    summary: str
+
+
 class TraceAnalyzer(Protocol):
     """Contract for turning raw task traces into actionable insight."""
 
@@ -144,6 +155,48 @@ class SuccessPatternAnalyzer:
                 f"({dominant_count} occurrences)."
             ),
             details={"success_count": sum(counts.values()), "patterns": counts},
+        )
+
+
+def extract_event_sequence(trace: TaskTrace) -> tuple[EventSequenceStep, ...]:
+    """Return trace events ordered by timestamp and original position."""
+
+    ordered_events = sorted(
+        enumerate(trace.events), key=lambda item: (item[1].timestamp, item[0])
+    )
+    return tuple(
+        EventSequenceStep(
+            index=index,
+            event_id=event.event_id,
+            event_type=event.event_type,
+            timestamp=event.timestamp,
+            summary=event.summary,
+        )
+        for index, event in ordered_events
+    )
+
+
+class EventSequenceAnalyzer:
+    """Extract an ordered event sequence from a trace."""
+
+    def analyze(self, trace: TaskTrace) -> TraceInsight:
+        sequence = extract_event_sequence(trace)
+        return TraceInsight(
+            trace_id=trace.trace_id,
+            insight_type="event_sequence",
+            summary=f"Trace contains {len(sequence)} ordered events.",
+            details={
+                "sequence": tuple(
+                    {
+                        "index": step.index,
+                        "event_id": step.event_id,
+                        "event_type": step.event_type.value,
+                        "timestamp": step.timestamp,
+                        "summary": step.summary,
+                    }
+                    for step in sequence
+                )
+            },
         )
 
 
