@@ -79,6 +79,9 @@ integration scope and deferred work.
 See [Persistence Layer](docs/persistence.md) for Phase 4 storage backends,
 configuration, retention, backup, restore, and migration utilities.
 
+See [Phase 4 Summary](docs/phase4_summary.md) for the completed persistence
+scope and deferred work.
+
 ## Status
 
 Phase 3 ROS2 integration and Phase 4 persistence are complete. Recall
