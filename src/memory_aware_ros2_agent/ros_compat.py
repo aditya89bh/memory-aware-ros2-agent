@@ -132,6 +132,7 @@ else:
 
             def __init__(self, name: str, **_: Any) -> None:
                 self.name = name
+                self.namespace = str(_.get("namespace") or "")
                 self._parameters: dict[str, Any] = {}
 
             def declare_parameter(self, name: str, value: Any) -> Any:

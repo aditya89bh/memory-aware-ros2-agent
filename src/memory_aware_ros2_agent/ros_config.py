@@ -10,6 +10,7 @@ from memory_aware_ros2_agent.ros_topics import (
     MEMORY_EVENTS_TOPIC,
     MEMORY_TRACES_TOPIC,
     RECALL_SERVICE_NAME,
+    normalize_namespace,
 )
 
 
@@ -21,6 +22,7 @@ class RosNodeConfig:
     memory_traces_topic: str = MEMORY_TRACES_TOPIC
     recall_service_name: str = RECALL_SERVICE_NAME
     queue_depth: int = 10
+    namespace: str = ""
 
 
 def declare_ros_node_config(
@@ -41,6 +43,9 @@ def declare_ros_node_config(
             _declare_parameter(node, "recall_service_name", config.recall_service_name)
         ),
         queue_depth=int(_declare_parameter(node, "queue_depth", config.queue_depth)),
+        namespace=normalize_namespace(
+            str(_declare_parameter(node, "namespace", config.namespace))
+        ),
     )
     from memory_aware_ros2_agent.ros_validation import validate_ros_node_config
 
@@ -51,3 +56,10 @@ def declare_ros_node_config(
 def _declare_parameter(node: Node, name: str, default: Any) -> Any:
     parameter = node.declare_parameter(name, default)
     return getattr(parameter, "value", default)
+
+
+def namespace_for_node(config: RosNodeConfig | None = None) -> str | None:
+    """Return a namespace value suitable for ROS2 node construction."""
+
+    namespace = normalize_namespace((config or RosNodeConfig()).namespace)
+    return namespace or None

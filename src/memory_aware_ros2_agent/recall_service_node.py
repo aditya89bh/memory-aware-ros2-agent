@@ -9,7 +9,11 @@ from memory_aware_ros2_agent.ros_callback_groups import (
     make_callback_group,
 )
 from memory_aware_ros2_agent.ros_compat import Node, Trigger
-from memory_aware_ros2_agent.ros_config import RosNodeConfig, declare_ros_node_config
+from memory_aware_ros2_agent.ros_config import (
+    RosNodeConfig,
+    declare_ros_node_config,
+    namespace_for_node,
+)
 
 
 class RecallService(Node):
@@ -20,7 +24,7 @@ class RecallService(Node):
         config: RosNodeConfig | None = None,
         callback_group_config: CallbackGroupConfig | None = None,
     ) -> None:
-        super().__init__("recall_service")
+        super().__init__("recall_service", namespace=namespace_for_node(config))
         self.config = declare_ros_node_config(self, config)
         self.callback_group = make_callback_group(callback_group_config)
         self.create_service(

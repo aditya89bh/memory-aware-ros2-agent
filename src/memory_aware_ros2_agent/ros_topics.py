@@ -8,6 +8,16 @@ MEMORY_TRACES_TOPIC = f"{MEMORY_NAMESPACE}/traces"
 RECALL_SERVICE_NAME = f"{MEMORY_NAMESPACE}/recall"
 
 
+def normalize_namespace(namespace: str) -> str:
+    """Normalize a ROS namespace for node construction."""
+
+    stripped = namespace.strip()
+    if not stripped:
+        return ""
+    normalized = normalize_ros_name(stripped)
+    return normalized if normalized.startswith("/") else f"/{normalized}"
+
+
 def normalize_ros_name(name: str) -> str:
     """Normalize a relative ROS graph name while preserving absolute names."""
 

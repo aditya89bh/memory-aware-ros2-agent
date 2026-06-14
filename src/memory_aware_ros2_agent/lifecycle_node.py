@@ -8,7 +8,11 @@ from memory_aware_ros2_agent.ros_compat import (
     LifecycleNode,
     TransitionCallbackReturn,
 )
-from memory_aware_ros2_agent.ros_config import RosNodeConfig, declare_ros_node_config
+from memory_aware_ros2_agent.ros_config import (
+    RosNodeConfig,
+    declare_ros_node_config,
+    namespace_for_node,
+)
 
 
 class MemoryLifecycleNode(LifecycleNode):
@@ -19,7 +23,7 @@ class MemoryLifecycleNode(LifecycleNode):
         node_name: str = "memory_lifecycle",
         config: RosNodeConfig | None = None,
     ) -> None:
-        super().__init__(node_name)
+        super().__init__(node_name, namespace=namespace_for_node(config))
         self.config = declare_ros_node_config(self, config)
         self.is_configured = False
         self.is_active = False

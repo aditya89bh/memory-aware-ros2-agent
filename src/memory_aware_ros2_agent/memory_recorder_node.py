@@ -10,7 +10,11 @@ from memory_aware_ros2_agent.ros_callback_groups import (
     make_callback_group,
 )
 from memory_aware_ros2_agent.ros_compat import Node, String
-from memory_aware_ros2_agent.ros_config import RosNodeConfig, declare_ros_node_config
+from memory_aware_ros2_agent.ros_config import (
+    RosNodeConfig,
+    declare_ros_node_config,
+    namespace_for_node,
+)
 from memory_aware_ros2_agent.ros_qos import QoSConfig, make_qos_profile
 from memory_aware_ros2_agent.serialization import memory_event_from_dict
 
@@ -24,7 +28,7 @@ class MemoryRecorder(Node):
         qos_config: QoSConfig | None = None,
         callback_group_config: CallbackGroupConfig | None = None,
     ) -> None:
-        super().__init__("memory_recorder")
+        super().__init__("memory_recorder", namespace=namespace_for_node(config))
         self.config = declare_ros_node_config(self, config)
         self.qos_profile = make_qos_profile(
             qos_config or QoSConfig(depth=self.config.queue_depth)
