@@ -97,6 +97,17 @@ class ExecutionStatistics:
     status: str
 
 
+@dataclass(frozen=True)
+class TraceComparison:
+    """Comparison between two task traces."""
+
+    left_trace_id: str
+    right_trace_id: str
+    duration_delta_seconds: float | None
+    event_count_delta: int
+    status_changed: bool
+
+
 class TraceAnalyzer(Protocol):
     """Contract for turning raw task traces into actionable insight."""
 
@@ -641,6 +652,28 @@ class ExecutionStatisticsAnalyzer:
                 "status": statistics.status,
             },
         )
+
+
+def compare_traces(left: TaskTrace, right: TaskTrace) -> TraceComparison:
+    """Compare two traces using aggregate statistics."""
+
+    left_statistics = calculate_execution_statistics(left)
+    right_statistics = calculate_execution_statistics(right)
+    duration_delta_seconds = None
+    if (
+        left_statistics.duration_seconds is not None
+        and right_statistics.duration_seconds is not None
+    ):
+        duration_delta_seconds = (
+            right_statistics.duration_seconds - left_statistics.duration_seconds
+        )
+    return TraceComparison(
+        left_trace_id=left.trace_id,
+        right_trace_id=right.trace_id,
+        duration_delta_seconds=duration_delta_seconds,
+        event_count_delta=right_statistics.event_count - left_statistics.event_count,
+        status_changed=left_statistics.status != right_statistics.status,
+    )
 
 
 def _latest_event_timestamp(trace: TaskTrace) -> str | None:
