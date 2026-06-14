@@ -30,6 +30,14 @@ class EventSequenceStep:
     summary: str
 
 
+@dataclass(frozen=True)
+class RepeatedFailure:
+    """Failure reason that appears multiple times in a trace."""
+
+    reason: str
+    count: int
+
+
 class TraceAnalyzer(Protocol):
     """Contract for turning raw task traces into actionable insight."""
 
@@ -196,6 +204,46 @@ class EventSequenceAnalyzer:
                     }
                     for step in sequence
                 )
+            },
+        )
+
+
+def detect_repeated_failures(
+    trace: TaskTrace, *, minimum_count: int = 2
+) -> tuple[RepeatedFailure, ...]:
+    """Return failure reasons repeated at least ``minimum_count`` times."""
+
+    return tuple(
+        RepeatedFailure(reason=reason, count=count)
+        for reason, count in sorted(failure_pattern_counts(trace).items())
+        if count >= minimum_count
+    )
+
+
+class RepeatedFailureAnalyzer:
+    """Detect repeated failure reasons in a task trace."""
+
+    def __init__(self, *, minimum_count: int = 2) -> None:
+        self.minimum_count = minimum_count
+
+    def analyze(self, trace: TaskTrace) -> TraceInsight:
+        repeated_failures = detect_repeated_failures(
+            trace, minimum_count=self.minimum_count
+        )
+        return TraceInsight(
+            trace_id=trace.trace_id,
+            insight_type="repeated_failures",
+            summary=(
+                "No repeated failures were detected."
+                if not repeated_failures
+                else f"Detected {len(repeated_failures)} repeated failure patterns."
+            ),
+            details={
+                "minimum_count": self.minimum_count,
+                "repeated_failures": tuple(
+                    {"reason": failure.reason, "count": failure.count}
+                    for failure in repeated_failures
+                ),
             },
         )
 
