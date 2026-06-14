@@ -7,21 +7,29 @@ import json
 from memory_aware_ros2_agent.models import MemoryEvent
 from memory_aware_ros2_agent.ros_compat import Node, String
 from memory_aware_ros2_agent.ros_config import RosNodeConfig, declare_ros_node_config
+from memory_aware_ros2_agent.ros_qos import QoSConfig, make_qos_profile
 from memory_aware_ros2_agent.serialization import memory_event_from_dict
 
 
 class MemoryRecorder(Node):
     """Subscribe to memory event JSON messages and keep the latest event in memory."""
 
-    def __init__(self, config: RosNodeConfig | None = None) -> None:
+    def __init__(
+        self,
+        config: RosNodeConfig | None = None,
+        qos_config: QoSConfig | None = None,
+    ) -> None:
         super().__init__("memory_recorder")
         self.config = declare_ros_node_config(self, config)
+        self.qos_profile = make_qos_profile(
+            qos_config or QoSConfig(depth=self.config.queue_depth)
+        )
         self.last_event: MemoryEvent | None = None
         self.create_subscription(
             String,
             self.config.memory_events_topic,
             self.record_event,
-            self.config.queue_depth,
+            self.qos_profile,
         )
 
     def record_event(self, message: String) -> None:

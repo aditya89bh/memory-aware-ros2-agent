@@ -7,21 +7,29 @@ import json
 from memory_aware_ros2_agent.models import TaskTrace
 from memory_aware_ros2_agent.ros_compat import Node, String
 from memory_aware_ros2_agent.ros_config import RosNodeConfig, declare_ros_node_config
+from memory_aware_ros2_agent.ros_qos import QoSConfig, make_qos_profile
 from memory_aware_ros2_agent.serialization import task_trace_from_dict
 
 
 class TraceSubscriber(Node):
     """Subscribe to task trace JSON messages and keep the latest trace in memory."""
 
-    def __init__(self, config: RosNodeConfig | None = None) -> None:
+    def __init__(
+        self,
+        config: RosNodeConfig | None = None,
+        qos_config: QoSConfig | None = None,
+    ) -> None:
         super().__init__("trace_subscriber")
         self.config = declare_ros_node_config(self, config)
+        self.qos_profile = make_qos_profile(
+            qos_config or QoSConfig(depth=self.config.queue_depth)
+        )
         self.last_trace: TaskTrace | None = None
         self.create_subscription(
             String,
             self.config.memory_traces_topic,
             self.record_trace,
-            self.config.queue_depth,
+            self.qos_profile,
         )
 
     def record_trace(self, message: String) -> None:

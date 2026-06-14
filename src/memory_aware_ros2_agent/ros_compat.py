@@ -33,6 +33,29 @@ if TYPE_CHECKING:
     class LifecycleNode(Node):
         """Typed fallback lifecycle node used by static analysis."""
 
+    class QoSProfile:
+        """Typed fallback QoS profile."""
+
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+
+    class ReliabilityPolicy:
+        """Typed fallback reliability policy enum."""
+
+        RELIABLE: Any
+        BEST_EFFORT: Any
+
+    class DurabilityPolicy:
+        """Typed fallback durability policy enum."""
+
+        VOLATILE: Any
+        TRANSIENT_LOCAL: Any
+
+    class HistoryPolicy:
+        """Typed fallback history policy enum."""
+
+        KEEP_LAST: Any
+        KEEP_ALL: Any
+
     class TransitionCallbackReturn:
         """Typed fallback transition return enum."""
 
@@ -62,6 +85,12 @@ else:
     try:
         import rclpy
         from rclpy.node import Node
+        from rclpy.qos import (
+            DurabilityPolicy,
+            HistoryPolicy,
+            QoSProfile,
+            ReliabilityPolicy,
+        )
         from std_msgs.msg import String
         from std_srvs.srv import Trigger
 
@@ -105,6 +134,34 @@ else:
         class LifecycleNode(Node):
             """Fallback lifecycle node used without ROS2 installed."""
 
+        class ReliabilityPolicy:
+            RELIABLE = "reliable"
+            BEST_EFFORT = "best_effort"
+
+        class DurabilityPolicy:
+            VOLATILE = "volatile"
+            TRANSIENT_LOCAL = "transient_local"
+
+        class HistoryPolicy:
+            KEEP_LAST = "keep_last"
+            KEEP_ALL = "keep_all"
+
+        class QoSProfile:
+            """Fallback QoS profile used without ROS2 installed."""
+
+            def __init__(
+                self,
+                *,
+                depth: int,
+                reliability: Any,
+                durability: Any,
+                history: Any,
+            ) -> None:
+                self.depth = depth
+                self.reliability = reliability
+                self.durability = durability
+                self.history = history
+
         class TransitionCallbackReturn:
             SUCCESS = "success"
             FAILURE = "failure"
@@ -128,8 +185,12 @@ else:
 
 
 __all__ = [
+    "DurabilityPolicy",
+    "HistoryPolicy",
     "LifecycleNode",
     "Node",
+    "QoSProfile",
+    "ReliabilityPolicy",
     "String",
     "TransitionCallbackReturn",
     "Trigger",
