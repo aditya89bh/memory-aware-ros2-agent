@@ -85,6 +85,18 @@ class OutcomeSummary:
     terminal_event_id: str | None
 
 
+@dataclass(frozen=True)
+class ExecutionStatistics:
+    """Aggregate statistics for one task trace."""
+
+    event_count: int
+    duration_seconds: float | None
+    event_type_counts: dict[str, int]
+    failure_count: int
+    success_count: int
+    status: str
+
+
 class TraceAnalyzer(Protocol):
     """Contract for turning raw task traces into actionable insight."""
 
@@ -586,6 +598,47 @@ class OutcomeSummaryAnalyzer:
                 "reason": outcome.reason,
                 "duration_seconds": outcome.duration_seconds,
                 "terminal_event_id": outcome.terminal_event_id,
+            },
+        )
+
+
+def calculate_execution_statistics(trace: TaskTrace) -> ExecutionStatistics:
+    """Calculate aggregate execution statistics for a trace."""
+
+    event_type_counts: dict[str, int] = {}
+    for event in trace.events:
+        event_type_counts[event.event_type.value] = (
+            event_type_counts.get(event.event_type.value, 0) + 1
+        )
+    return ExecutionStatistics(
+        event_count=len(trace.events),
+        duration_seconds=task_duration_seconds(trace),
+        event_type_counts=event_type_counts,
+        failure_count=len(failure_events(trace)),
+        success_count=len(success_events(trace)),
+        status=summarize_outcome(trace).status,
+    )
+
+
+class ExecutionStatisticsAnalyzer:
+    """Analyze aggregate execution statistics for a task trace."""
+
+    def analyze(self, trace: TaskTrace) -> TraceInsight:
+        statistics = calculate_execution_statistics(trace)
+        return TraceInsight(
+            trace_id=trace.trace_id,
+            insight_type="execution_statistics",
+            summary=(
+                f"Trace has {statistics.event_count} events "
+                f"and status {statistics.status}."
+            ),
+            details={
+                "event_count": statistics.event_count,
+                "duration_seconds": statistics.duration_seconds,
+                "event_type_counts": statistics.event_type_counts,
+                "failure_count": statistics.failure_count,
+                "success_count": statistics.success_count,
+                "status": statistics.status,
             },
         )
 
