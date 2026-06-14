@@ -38,6 +38,15 @@ def initialize_sqlite_schema(connection: sqlite3.Connection) -> None:
             key TEXT PRIMARY KEY,
             value TEXT NOT NULL
         );
+
+        CREATE INDEX IF NOT EXISTS idx_memory_events_trace_id
+            ON memory_events(trace_id);
+        CREATE INDEX IF NOT EXISTS idx_memory_events_timestamp
+            ON memory_events(timestamp);
+        CREATE INDEX IF NOT EXISTS idx_task_traces_started_at
+            ON task_traces(started_at);
+        CREATE INDEX IF NOT EXISTS idx_recall_results_generated_at
+            ON recall_results(generated_at);
         """
     )
     connection.execute(
@@ -57,6 +66,20 @@ def sqlite_tables(connection: sqlite3.Connection) -> tuple[str, ...]:
         """
         SELECT name FROM sqlite_master
         WHERE type = 'table'
+        ORDER BY name
+        """
+    ).fetchall()
+    return tuple(str(row[0]) for row in rows)
+
+
+def sqlite_indexes(connection: sqlite3.Connection) -> tuple[str, ...]:
+    """Return user-created SQLite index names."""
+
+    rows: list[tuple[Any, ...]] = connection.execute(
+        """
+        SELECT name FROM sqlite_master
+        WHERE type = 'index'
+          AND name NOT LIKE 'sqlite_autoindex%'
         ORDER BY name
         """
     ).fetchall()
