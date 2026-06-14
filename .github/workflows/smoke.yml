@@ -1,0 +1,50 @@
+name: Smoke
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+
+jobs:
+  import-and-cli:
+    name: Import and CLI smoke validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install .
+
+      - name: Validate package import
+        run: python -c "import memory_aware_ros2_agent as pkg; print(pkg.PACKAGE_NAME)"
+
+      - name: Validate console scripts are registered
+        run: |
+          python - <<'PY'
+          from importlib.metadata import entry_points
+
+          scripts = {
+              entry.name
+              for entry in entry_points(group="console_scripts")
+              if entry.value.startswith("memory_aware_ros2_agent.")
+          }
+          expected = {
+              "memory-lifecycle",
+              "memory-recorder",
+              "recall-service",
+              "trace-publisher",
+              "trace-subscriber",
+          }
+          missing = expected - scripts
+          if missing:
+              raise SystemExit(f"Missing console scripts: {sorted(missing)}")
+          PY
