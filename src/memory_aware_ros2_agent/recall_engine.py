@@ -39,3 +39,29 @@ class ExactMatchRecallEngine:
 def _event_search_text(event: MemoryEvent) -> str:
     payload_text = " ".join(f"{key} {value}" for key, value in event.payload.items())
     return f"{event.summary} {payload_text}".casefold()
+
+
+class TaskBasedRecallEngine:
+    """Recall events from traces whose task name matches the query text."""
+
+    def recall(self, query: RecallQuery, store: MemoryStore) -> RecallResult:
+        """Return events from matching persisted task traces."""
+
+        query_text = query.query_text.casefold().strip()
+        if not query_text:
+            return RecallResult(query_id=query.query_id)
+        matching_trace_ids = {
+            trace.trace_id
+            for trace in store.list_traces()
+            if query_text in trace.task_name.casefold()
+        }
+        events = tuple(
+            event
+            for event in store.list_events()
+            if event.trace_id in matching_trace_ids
+        )
+        return RecallResult(
+            query_id=query.query_id,
+            events=events[: query.limit],
+            scores=tuple(1.0 for _event in events[: query.limit]),
+        )
