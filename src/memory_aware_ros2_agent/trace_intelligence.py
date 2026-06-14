@@ -66,6 +66,15 @@ class StateTransition:
     count: int
 
 
+@dataclass(frozen=True)
+class TraceBottleneck:
+    """Long delay between adjacent trace events."""
+
+    from_event_id: str
+    to_event_id: str
+    duration_seconds: float
+
+
 class TraceAnalyzer(Protocol):
     """Contract for turning raw task traces into actionable insight."""
 
@@ -463,6 +472,61 @@ class StateTransitionAnalyzer:
                     }
                     for transition in transitions
                 )
+            },
+        )
+
+
+def identify_bottlenecks(
+    trace: TaskTrace, *, minimum_gap_seconds: float
+) -> tuple[TraceBottleneck, ...]:
+    """Return adjacent event gaps at or above ``minimum_gap_seconds``."""
+
+    sequence = extract_event_sequence(trace)
+    bottlenecks: list[TraceBottleneck] = []
+    for current_step, next_step in zip(sequence, sequence[1:], strict=False):
+        gap_seconds = (
+            _parse_timestamp(next_step.timestamp)
+            - _parse_timestamp(current_step.timestamp)
+        ).total_seconds()
+        if gap_seconds >= minimum_gap_seconds:
+            bottlenecks.append(
+                TraceBottleneck(
+                    from_event_id=current_step.event_id,
+                    to_event_id=next_step.event_id,
+                    duration_seconds=gap_seconds,
+                )
+            )
+    return tuple(bottlenecks)
+
+
+class BottleneckAnalyzer:
+    """Analyze long gaps between adjacent trace events."""
+
+    def __init__(self, *, minimum_gap_seconds: float) -> None:
+        self.minimum_gap_seconds = minimum_gap_seconds
+
+    def analyze(self, trace: TaskTrace) -> TraceInsight:
+        bottlenecks = identify_bottlenecks(
+            trace, minimum_gap_seconds=self.minimum_gap_seconds
+        )
+        return TraceInsight(
+            trace_id=trace.trace_id,
+            insight_type="bottlenecks",
+            summary=(
+                "No bottlenecks were detected."
+                if not bottlenecks
+                else f"Detected {len(bottlenecks)} bottlenecks."
+            ),
+            details={
+                "minimum_gap_seconds": self.minimum_gap_seconds,
+                "bottlenecks": tuple(
+                    {
+                        "from_event_id": bottleneck.from_event_id,
+                        "to_event_id": bottleneck.to_event_id,
+                        "duration_seconds": bottleneck.duration_seconds,
+                    }
+                    for bottleneck in bottlenecks
+                ),
             },
         )
 
