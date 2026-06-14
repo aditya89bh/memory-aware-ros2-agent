@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from memory_aware_ros2_agent.models import MemoryEvent
+from memory_aware_ros2_agent.models import MemoryEvent, TaskTrace
 from memory_aware_ros2_agent.persistence import MemoryStore
 
 
@@ -26,3 +26,22 @@ def load_events_for_trace(
     """Load memory events belonging to a trace."""
 
     return store.list_events(trace_id)
+
+
+def persist_trace(store: MemoryStore, trace: TaskTrace) -> TaskTrace:
+    """Persist a task trace and return it for caller chaining."""
+
+    store.save_trace(trace)
+    return trace
+
+
+def load_trace(store: MemoryStore, trace_id: str) -> TaskTrace | None:
+    """Load a task trace by id."""
+
+    return store.get_trace(trace_id)
+
+
+def load_traces(store: MemoryStore) -> tuple[TaskTrace, ...]:
+    """Load all task traces from a store."""
+
+    return store.list_traces()
