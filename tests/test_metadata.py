@@ -1,6 +1,9 @@
 from pathlib import Path
 
-import tomllib
+try:
+    import tomllib
+except ModuleNotFoundError:  # pragma: no cover - Python < 3.11 compatibility.
+    import tomli as tomllib
 
 from memory_aware_ros2_agent import PACKAGE_NAME, __version__
 

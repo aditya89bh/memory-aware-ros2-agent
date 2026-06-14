@@ -30,12 +30,14 @@ dev = [
   "mypy",
   "pytest",
   "ruff",
+  "tomli; python_version < '3.11'",
 ]
 
 [project.scripts]
 memory-recorder = "memory_aware_ros2_agent.memory_recorder_node:main"
 recall-service = "memory_aware_ros2_agent.recall_service_node:main"
 trace-publisher = "memory_aware_ros2_agent.trace_publisher_node:main"
+trace-subscriber = "memory_aware_ros2_agent.trace_subscriber_node:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

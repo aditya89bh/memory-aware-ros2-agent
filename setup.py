@@ -21,4 +21,12 @@ setup(
         "ROS2 package for memory events, task traces, and recall in robot workflows."
     ),
     license="MIT",
+    entry_points={
+        "console_scripts": [
+            "memory-recorder = memory_aware_ros2_agent.memory_recorder_node:main",
+            "recall-service = memory_aware_ros2_agent.recall_service_node:main",
+            "trace-publisher = memory_aware_ros2_agent.trace_publisher_node:main",
+            "trace-subscriber = memory_aware_ros2_agent.trace_subscriber_node:main",
+        ],
+    },
 )
