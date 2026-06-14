@@ -37,6 +37,7 @@ dev = [
 ]
 
 [project.scripts]
+memory-benchmark = "memory_aware_ros2_agent.cli:benchmark_main"
 memory-export = "memory_aware_ros2_agent.cli:export_main"
 memory-import = "memory_aware_ros2_agent.cli:import_main"
 memory-inspect = "memory_aware_ros2_agent.cli:inspect_main"

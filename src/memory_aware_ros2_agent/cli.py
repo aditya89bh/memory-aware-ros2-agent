@@ -7,8 +7,13 @@ import json
 from pathlib import Path
 from typing import Any
 
+from memory_aware_ros2_agent.performance_benchmarks import (
+    benchmark_exact_match_recall,
+    benchmark_load_fixture_creation,
+)
 from memory_aware_ros2_agent.serialization import (
     memory_event_from_dict,
+    model_to_dict,
     task_trace_from_dict,
 )
 
@@ -90,3 +95,21 @@ def import_main(argv: list[str] | None = None) -> None:
     args = parser.parse_args(argv)
     paths = import_memory_bundle(args.bundle, args.output_dir)
     print(f"imported {len(paths)} memory records into {args.output_dir}")
+
+
+def run_benchmarks(event_count: int, limit: int) -> list[dict[str, Any]]:
+    """Run deterministic development benchmarks."""
+
+    results = [
+        benchmark_load_fixture_creation(event_count),
+        benchmark_exact_match_recall(event_count, limit),
+    ]
+    return [model_to_dict(result) for result in results]
+
+
+def benchmark_main(argv: list[str] | None = None) -> None:
+    parser = argparse.ArgumentParser(description="Run memory agent benchmarks.")
+    parser.add_argument("--event-count", default=100, type=int)
+    parser.add_argument("--limit", default=5, type=int)
+    args = parser.parse_args(argv)
+    print(json.dumps(run_benchmarks(args.event_count, args.limit), indent=2))
