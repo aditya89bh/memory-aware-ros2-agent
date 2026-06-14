@@ -106,6 +106,9 @@ See [Developer Quickstart](docs/developer_quickstart.md),
 [v1.0.0 Release Notes](docs/release_notes_v1.0.0.md) for the release-candidate
 developer experience.
 
+See [Phase 8 Summary](docs/phase8_summary.md) for final developer experience
+and release validation results.
+
 ## Status
 
 Phase 3 ROS2 integration, Phase 4 persistence, Phase 5 recall engine, Phase 6
