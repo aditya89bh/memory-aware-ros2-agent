@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from memory_aware_ros2_agent.models import MemoryEvent, TaskTrace
+from memory_aware_ros2_agent.models import MemoryEvent, RecallResult, TaskTrace
 
 
 class MemoryStore(Protocol):
@@ -27,6 +27,15 @@ class MemoryStore(Protocol):
 
     def list_traces(self) -> tuple[TaskTrace, ...]:
         """Return persisted task traces."""
+
+    def save_recall_result(self, result: RecallResult) -> None:
+        """Persist or replace a recall result."""
+
+    def get_recall_result(self, query_id: str) -> RecallResult | None:
+        """Return a recall result by query id, if present."""
+
+    def list_recall_results(self) -> tuple[RecallResult, ...]:
+        """Return persisted recall results."""
 
     def close(self) -> None:
         """Release backend resources."""

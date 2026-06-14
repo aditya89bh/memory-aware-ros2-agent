@@ -6,10 +6,11 @@ import json
 from pathlib import Path
 from typing import Any
 
-from memory_aware_ros2_agent.models import MemoryEvent, TaskTrace
+from memory_aware_ros2_agent.models import MemoryEvent, RecallResult, TaskTrace
 from memory_aware_ros2_agent.serialization import (
     memory_event_from_dict,
     model_to_dict,
+    recall_result_from_dict,
     task_trace_from_dict,
 )
 
@@ -21,7 +22,7 @@ class JsonFileStore:
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
         if not self.path.exists():
-            self._write({"events": {}, "traces": {}})
+            self._write({"events": {}, "recall_results": {}, "traces": {}})
 
     def save_event(self, event: MemoryEvent) -> None:
         """Persist or replace a memory event."""
@@ -71,6 +72,29 @@ class JsonFileStore:
             task_trace_from_dict(payload) for payload in self._read()["traces"].values()
         )
 
+    def save_recall_result(self, result: RecallResult) -> None:
+        """Persist or replace a recall result."""
+
+        data = self._read()
+        data["recall_results"][result.query_id] = model_to_dict(result)
+        self._write(data)
+
+    def get_recall_result(self, query_id: str) -> RecallResult | None:
+        """Return a recall result by query id, if present."""
+
+        payload = self._read()["recall_results"].get(query_id)
+        if payload is None:
+            return None
+        return recall_result_from_dict(payload)
+
+    def list_recall_results(self) -> tuple[RecallResult, ...]:
+        """Return persisted recall results."""
+
+        return tuple(
+            recall_result_from_dict(payload)
+            for payload in self._read()["recall_results"].values()
+        )
+
     def close(self) -> None:
         """Release backend resources."""
 
@@ -81,6 +105,7 @@ class JsonFileStore:
             data = json.load(file)
         return {
             "events": dict(data.get("events", {})),
+            "recall_results": dict(data.get("recall_results", {})),
             "traces": dict(data.get("traces", {})),
         }
 

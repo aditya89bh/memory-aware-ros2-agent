@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from memory_aware_ros2_agent.models import MemoryEvent, TaskTrace
+from memory_aware_ros2_agent.models import MemoryEvent, RecallResult, TaskTrace
 from memory_aware_ros2_agent.persistence import MemoryStore
 
 
@@ -45,3 +45,25 @@ def load_traces(store: MemoryStore) -> tuple[TaskTrace, ...]:
     """Load all task traces from a store."""
 
     return store.list_traces()
+
+
+def persist_recall_result(
+    store: MemoryStore,
+    result: RecallResult,
+) -> RecallResult:
+    """Persist a recall result and return it for caller chaining."""
+
+    store.save_recall_result(result)
+    return result
+
+
+def load_recall_result(store: MemoryStore, query_id: str) -> RecallResult | None:
+    """Load a recall result by query id."""
+
+    return store.get_recall_result(query_id)
+
+
+def load_recall_results(store: MemoryStore) -> tuple[RecallResult, ...]:
+    """Load all recall results from a store."""
+
+    return store.list_recall_results()

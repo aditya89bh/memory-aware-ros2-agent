@@ -1,6 +1,11 @@
 from pathlib import Path
 
-from memory_aware_ros2_agent.models import EventType, MemoryEvent, TaskTrace
+from memory_aware_ros2_agent.models import (
+    EventType,
+    MemoryEvent,
+    RecallResult,
+    TaskTrace,
+)
 from memory_aware_ros2_agent.persistence import MemoryStore
 from memory_aware_ros2_agent.sqlite_store import SQLiteStore, sqlite_tables
 
@@ -18,7 +23,7 @@ def _event(event_id: str, trace_id: str = "trace-001") -> MemoryEvent:
 def test_sqlite_store_initializes_schema(tmp_path: Path) -> None:
     store = SQLiteStore(tmp_path / "memory.db")
 
-    assert sqlite_tables(store) == ("memory_events", "task_traces")
+    assert sqlite_tables(store) == ("memory_events", "recall_results", "task_traces")
 
 
 def test_sqlite_store_round_trips_events_and_traces(tmp_path: Path) -> None:
@@ -50,3 +55,13 @@ def test_sqlite_store_reopens_existing_database(tmp_path: Path) -> None:
     second_store = SQLiteStore(path)
 
     assert second_store.get_event("event-001") == event
+
+
+def test_sqlite_store_round_trips_recall_results(tmp_path: Path) -> None:
+    store = SQLiteStore(tmp_path / "memory.db")
+    result = RecallResult(query_id="query-001", generated_at="2026-06-14T10:00:00Z")
+
+    store.save_recall_result(result)
+
+    assert store.get_recall_result("query-001") == result
+    assert store.list_recall_results() == (result,)

@@ -7,10 +7,11 @@ from pathlib import Path
 from typing import Any
 
 from memory_aware_ros2_agent.in_memory_store import InMemoryStore
-from memory_aware_ros2_agent.models import MemoryEvent, TaskTrace
+from memory_aware_ros2_agent.models import MemoryEvent, RecallResult, TaskTrace
 from memory_aware_ros2_agent.serialization import (
     memory_event_from_dict,
     model_to_dict,
+    recall_result_from_dict,
 )
 
 
@@ -55,6 +56,22 @@ class EventLogStore:
 
         return self._store.list_traces()
 
+    def save_recall_result(self, result: RecallResult) -> None:
+        """Append and persist a recall result."""
+
+        self._append({"record_type": "recall_result", "payload": model_to_dict(result)})
+        self._store.save_recall_result(result)
+
+    def get_recall_result(self, query_id: str) -> RecallResult | None:
+        """Return a recall result by query id, if present."""
+
+        return self._store.get_recall_result(query_id)
+
+    def list_recall_results(self) -> tuple[RecallResult, ...]:
+        """Return persisted recall results."""
+
+        return self._store.list_recall_results()
+
     def close(self) -> None:
         """Release backend resources."""
 
@@ -73,3 +90,7 @@ class EventLogStore:
                 record = json.loads(line)
                 if record.get("record_type") == "memory_event":
                     self._store.save_event(memory_event_from_dict(record["payload"]))
+                if record.get("record_type") == "recall_result":
+                    self._store.save_recall_result(
+                        recall_result_from_dict(record["payload"])
+                    )

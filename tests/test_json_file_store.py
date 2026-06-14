@@ -2,7 +2,12 @@ import json
 from pathlib import Path
 
 from memory_aware_ros2_agent.json_file_store import JsonFileStore
-from memory_aware_ros2_agent.models import EventType, MemoryEvent, TaskTrace
+from memory_aware_ros2_agent.models import (
+    EventType,
+    MemoryEvent,
+    RecallResult,
+    TaskTrace,
+)
 from memory_aware_ros2_agent.persistence import MemoryStore
 
 
@@ -23,6 +28,7 @@ def test_json_file_store_creates_storage_file(tmp_path: Path) -> None:
 
     assert json.loads(path.read_text(encoding="utf-8")) == {
         "events": {},
+        "recall_results": {},
         "traces": {},
     }
 
@@ -55,3 +61,13 @@ def test_json_file_store_reloads_existing_data(tmp_path: Path) -> None:
     second_store = JsonFileStore(path)
 
     assert second_store.get_event("event-001") == event
+
+
+def test_json_file_store_round_trips_recall_results(tmp_path: Path) -> None:
+    store = JsonFileStore(tmp_path / "memory.json")
+    result = RecallResult(query_id="query-001", generated_at="2026-06-14T10:00:00Z")
+
+    store.save_recall_result(result)
+
+    assert store.get_recall_result("query-001") == result
+    assert store.list_recall_results() == (result,)

@@ -2,7 +2,12 @@ import json
 from pathlib import Path
 
 from memory_aware_ros2_agent.event_log_store import EventLogStore
-from memory_aware_ros2_agent.models import EventType, MemoryEvent, TaskTrace
+from memory_aware_ros2_agent.models import (
+    EventType,
+    MemoryEvent,
+    RecallResult,
+    TaskTrace,
+)
 from memory_aware_ros2_agent.persistence import MemoryStore
 
 
@@ -65,3 +70,15 @@ def test_event_log_store_satisfies_memory_store_protocol(tmp_path: Path) -> None
     store.save_trace(trace)
 
     assert store.get_trace("trace-001") == trace
+
+
+def test_event_log_store_appends_and_replays_recall_results(tmp_path: Path) -> None:
+    path = tmp_path / "events.jsonl"
+    first_store = EventLogStore(path)
+    result = RecallResult(query_id="query-001", generated_at="2026-06-14T10:00:00Z")
+    first_store.save_recall_result(result)
+
+    second_store = EventLogStore(path)
+
+    assert second_store.get_recall_result("query-001") == result
+    assert second_store.list_recall_results() == (result,)

@@ -7,10 +7,11 @@ import sqlite3
 from pathlib import Path
 from typing import Any
 
-from memory_aware_ros2_agent.models import MemoryEvent, TaskTrace
+from memory_aware_ros2_agent.models import MemoryEvent, RecallResult, TaskTrace
 from memory_aware_ros2_agent.serialization import (
     memory_event_from_dict,
     model_to_dict,
+    recall_result_from_dict,
     task_trace_from_dict,
 )
 
@@ -110,6 +111,42 @@ class SQLiteStore:
         ).fetchall()
         return tuple(task_trace_from_dict(json.loads(str(row[0]))) for row in rows)
 
+    def save_recall_result(self, result: RecallResult) -> None:
+        """Persist or replace a recall result."""
+
+        self.connection.execute(
+            """
+            INSERT OR REPLACE INTO recall_results
+              (query_id, generated_at, payload_json)
+            VALUES (?, ?, ?)
+            """,
+            (
+                result.query_id,
+                result.generated_at,
+                json.dumps(model_to_dict(result), sort_keys=True),
+            ),
+        )
+        self.connection.commit()
+
+    def get_recall_result(self, query_id: str) -> RecallResult | None:
+        """Return a recall result by query id, if present."""
+
+        row = self.connection.execute(
+            "SELECT payload_json FROM recall_results WHERE query_id = ?",
+            (query_id,),
+        ).fetchone()
+        if row is None:
+            return None
+        return recall_result_from_dict(json.loads(str(row[0])))
+
+    def list_recall_results(self) -> tuple[RecallResult, ...]:
+        """Return persisted recall results."""
+
+        rows = self.connection.execute(
+            "SELECT payload_json FROM recall_results ORDER BY rowid"
+        ).fetchall()
+        return tuple(recall_result_from_dict(json.loads(str(row[0]))) for row in rows)
+
     def close(self) -> None:
         """Release backend resources."""
 
@@ -130,6 +167,12 @@ class SQLiteStore:
                 trace_id TEXT PRIMARY KEY,
                 task_name TEXT NOT NULL,
                 started_at TEXT NOT NULL,
+                payload_json TEXT NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS recall_results (
+                query_id TEXT PRIMARY KEY,
+                generated_at TEXT,
                 payload_json TEXT NOT NULL
             );
             """

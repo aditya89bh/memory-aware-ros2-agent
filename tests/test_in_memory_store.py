@@ -1,5 +1,10 @@
 from memory_aware_ros2_agent.in_memory_store import InMemoryStore
-from memory_aware_ros2_agent.models import EventType, MemoryEvent, TaskTrace
+from memory_aware_ros2_agent.models import (
+    EventType,
+    MemoryEvent,
+    RecallResult,
+    TaskTrace,
+)
 from memory_aware_ros2_agent.persistence import MemoryStore
 
 
@@ -66,3 +71,13 @@ def test_in_memory_store_saves_and_gets_traces() -> None:
 
     assert store.get_trace("trace-001") == trace
     assert store.list_traces() == (trace,)
+
+
+def test_in_memory_store_saves_and_gets_recall_results() -> None:
+    store = InMemoryStore()
+    result = RecallResult(query_id="query-001", generated_at="2026-06-14T10:00:00Z")
+
+    store.save_recall_result(result)
+
+    assert store.get_recall_result("query-001") == result
+    assert store.list_recall_results() == (result,)
