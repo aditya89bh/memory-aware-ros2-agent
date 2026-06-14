@@ -1,3 +1,40 @@
+# Architecture Diagrams
+
+## Runtime Memory Flow
+
+```mermaid
+flowchart LR
+  Robot[Robot Task Runtime] --> Recorder[MemoryRecorder Node]
+  Recorder --> Event[MemoryEvent]
+  Recorder --> Trace[TaskTrace]
+  Event --> Store[(Memory Store)]
+  Trace --> Store
+  Store --> Recall[Recall Engine]
+  Recall --> Service[RecallService Node]
+  Service --> Robot
+```
+
+## Persistence And Recall
+
+```mermaid
+flowchart TD
+  CLI[Developer CLI] --> Bundle[JSON Import/Export Bundle]
+  Bundle --> Store[(JSON/SQLite/Event Log Store)]
+  Store --> Filters[Recall Filters]
+  Filters --> Scoring[Scoring And Ranking]
+  Scoring --> Results[Recall Results]
+  Results --> Explain[Recall Explanations]
+```
+
+## Trace Intelligence
+
+```mermaid
+flowchart LR
+  Trace[TaskTrace] --> Analyzers[Trace Analyzers]
+  Analyzers --> Patterns[Failure And Success Patterns]
+  Analyzers --> Replay[Replay Steps]
+  Analyzers --> Summary[Experience Summary]
+```
 # Architecture
 
 `memory-aware-ros2-agent` is intended to provide a small memory layer for robot
