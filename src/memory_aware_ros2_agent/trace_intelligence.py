@@ -75,6 +75,16 @@ class TraceBottleneck:
     duration_seconds: float
 
 
+@dataclass(frozen=True)
+class OutcomeSummary:
+    """Summary of the final outcome of a task trace."""
+
+    status: str
+    reason: str | None
+    duration_seconds: float | None
+    terminal_event_id: str | None
+
+
 class TraceAnalyzer(Protocol):
     """Contract for turning raw task traces into actionable insight."""
 
@@ -527,6 +537,55 @@ class BottleneckAnalyzer:
                     }
                     for bottleneck in bottlenecks
                 ),
+            },
+        )
+
+
+def summarize_outcome(trace: TaskTrace) -> OutcomeSummary:
+    """Summarize a trace outcome from its terminal event and duration."""
+
+    terminal_event: MemoryEvent | None = None
+    for step in reversed(extract_event_sequence(trace)):
+        event = trace.events[step.index]
+        if event.event_type in {EventType.TASK_FAILED, EventType.TASK_SUCCEEDED}:
+            terminal_event = event
+            break
+
+    if terminal_event is None:
+        return OutcomeSummary(
+            status="unknown",
+            reason=None,
+            duration_seconds=task_duration_seconds(trace),
+            terminal_event_id=None,
+        )
+
+    status = (
+        "failed"
+        if terminal_event.event_type == EventType.TASK_FAILED
+        else "succeeded"
+    )
+    return OutcomeSummary(
+        status=status,
+        reason=str(terminal_event.payload.get("reason") or terminal_event.summary),
+        duration_seconds=task_duration_seconds(trace),
+        terminal_event_id=terminal_event.event_id,
+    )
+
+
+class OutcomeSummaryAnalyzer:
+    """Analyze the final outcome of a task trace."""
+
+    def analyze(self, trace: TaskTrace) -> TraceInsight:
+        outcome = summarize_outcome(trace)
+        return TraceInsight(
+            trace_id=trace.trace_id,
+            insight_type="outcome_summary",
+            summary=f"Task outcome is {outcome.status}.",
+            details={
+                "status": outcome.status,
+                "reason": outcome.reason,
+                "duration_seconds": outcome.duration_seconds,
+                "terminal_event_id": outcome.terminal_event_id,
             },
         )
 
