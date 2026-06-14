@@ -30,6 +30,15 @@ if TYPE_CHECKING:
         def get_logger(self) -> _FallbackLogger: ...
         def destroy_node(self) -> None: ...
 
+    class LifecycleNode(Node):
+        """Typed fallback lifecycle node used by static analysis."""
+
+    class TransitionCallbackReturn:
+        """Typed fallback transition return enum."""
+
+        SUCCESS: Any
+        FAILURE: Any
+
     class String:
         """Typed fallback std_msgs/String message."""
 
@@ -55,6 +64,15 @@ else:
         from rclpy.node import Node
         from std_msgs.msg import String
         from std_srvs.srv import Trigger
+
+        try:
+            from rclpy.lifecycle import LifecycleNode, TransitionCallbackReturn
+        except ImportError:  # pragma: no cover - depends on ROS2 distribution.
+            LifecycleNode = Node
+
+            class TransitionCallbackReturn:
+                SUCCESS = "success"
+                FAILURE = "failure"
     except ImportError:  # pragma: no cover - used when ROS2 is not installed.
         rclpy = None
 
@@ -84,6 +102,13 @@ else:
             def destroy_node(self) -> None:
                 return None
 
+        class LifecycleNode(Node):
+            """Fallback lifecycle node used without ROS2 installed."""
+
+        class TransitionCallbackReturn:
+            SUCCESS = "success"
+            FAILURE = "failure"
+
         class String:
             """Fallback std_msgs/String message."""
 
@@ -102,7 +127,15 @@ else:
                     self.message = ""
 
 
-__all__ = ["Node", "String", "Trigger", "rclpy", "ros_available"]
+__all__ = [
+    "LifecycleNode",
+    "Node",
+    "String",
+    "TransitionCallbackReturn",
+    "Trigger",
+    "rclpy",
+    "ros_available",
+]
 
 
 def ros_available() -> bool:
