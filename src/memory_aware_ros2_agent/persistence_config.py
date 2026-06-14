@@ -9,6 +9,7 @@ from typing import Any
 
 from memory_aware_ros2_agent.backend_registry import default_backend_registry
 from memory_aware_ros2_agent.persistence import MemoryStore
+from memory_aware_ros2_agent.persistence_errors import BackendConfigurationError
 
 
 @dataclass(frozen=True)
@@ -36,7 +37,7 @@ def load_persistence_config(path: str | Path) -> PersistenceConfig:
         data = json.load(file)
     if not isinstance(data, dict):
         msg = "Persistence config must be a JSON object"
-        raise ValueError(msg)
+        raise BackendConfigurationError(msg)
     return persistence_config_from_dict(data)
 
 

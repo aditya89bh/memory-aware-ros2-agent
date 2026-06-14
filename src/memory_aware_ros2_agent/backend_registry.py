@@ -9,6 +9,7 @@ from memory_aware_ros2_agent.event_log_store import EventLogStore
 from memory_aware_ros2_agent.in_memory_store import InMemoryStore
 from memory_aware_ros2_agent.json_file_store import JsonFileStore
 from memory_aware_ros2_agent.persistence import MemoryStore
+from memory_aware_ros2_agent.persistence_errors import BackendConfigurationError
 from memory_aware_ros2_agent.sqlite_store import SQLiteStore
 
 BackendFactory = Callable[[str | Path | None], MemoryStore]
@@ -32,7 +33,7 @@ class BackendRegistry:
             factory = self._factories[name]
         except KeyError as exc:
             msg = f"Unknown persistence backend: {name}"
-            raise ValueError(msg) from exc
+            raise BackendConfigurationError(msg) from exc
         return factory(path)
 
     def names(self) -> tuple[str, ...]:
@@ -58,7 +59,7 @@ def _require_path(
     def create(path: str | Path | None) -> MemoryStore:
         if path is None:
             msg = f"{store_type.__name__} requires a path"
-            raise ValueError(msg)
+            raise BackendConfigurationError(msg)
         return store_type(path)
 
     return create
